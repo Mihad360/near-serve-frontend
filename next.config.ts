@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "mihad8000.merinasib.shop" },
+      { protocol: "https", hostname: "images.higgs.ai" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
 };

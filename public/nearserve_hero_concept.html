@@ -1,0 +1,437 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Instrument Sans',sans-serif;background:#FAF6EF;color:#1a1208;min-height:100vh;overflow-x:hidden}
+
+/* NAVBAR */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;position:relative;z-index:100}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#1a1208;letter-spacing:-0.5px}
+.nav-logo span{color:#C70A24}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;font-weight:500;color:#4a3728;text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:#1a1208}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-login{font-size:14px;font-weight:500;color:#4a3728;text-decoration:none}
+.nav-cta{background:#1a1208;color:#FAF6EF;font-size:14px;font-weight:500;padding:10px 22px;border-radius:50px;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:background 0.2s}
+.nav-cta:hover{background:#C70A24}
+
+/* HERO */
+.hero{display:flex;align-items:center;justify-content:space-between;padding:20px 48px 60px;min-height:calc(100vh - 80px);gap:40px}
+
+/* LEFT */
+.hero-left{flex:0 1 520px;display:flex;flex-direction:column;gap:28px;animation:fadeUp 1s cubic-bezier(0.22,1,0.36,1) both}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #e8ddd0;border-radius:50px;padding:6px 14px;font-size:12px;font-weight:500;color:#4a3728;width:fit-content}
+.hero-badge-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+.hero-h1{font-family:'Fraunces',serif;font-size:52px;font-weight:600;line-height:1.08;letter-spacing:-1.5px;color:#1a1208}
+.hero-h1 em{font-style:italic;color:#C70A24}
+.hero-sub{font-size:16px;line-height:1.65;color:#6b5244;max-width:420px}
+.hero-sub strong{color:#1a1208;font-weight:600}
+.hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn-primary{background:#C70A24;color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:50px;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-primary:hover{background:#a50820;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:#1a1208;font-size:15px;font-weight:500;padding:14px 24px;border-radius:50px;border:1.5px solid #c8b8a8;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all 0.2s}
+.btn-secondary:hover{border-color:#1a1208;background:#fff}
+.trust-strip{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#6b5244}
+.trust-item svg{flex-shrink:0}
+.trust-sep{width:4px;height:4px;border-radius:50%;background:#c8b8a8}
+
+/* RIGHT — ORBITS */
+.hero-right{flex:0 0 580px;display:flex;align-items:center;justify-content:center;position:relative;height:560px;animation:scaleIn 1.2s cubic-bezier(0.22,1,0.36,1) 0.3s both}
+.orbit-wrap{position:relative;width:500px;height:500px;display:flex;align-items:center;justify-content:center}
+
+/* center glow */
+.center-glow{position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(199,10,36,0.12) 0%,rgba(199,10,36,0) 70%);animation:glowPulse 3s ease-in-out infinite}
+
+/* center card */
+.center-card{position:absolute;z-index:10;background:#fff;border:1.5px solid #e8ddd0;border-radius:20px;padding:18px 22px;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 8px 32px rgba(26,18,8,0.1)}
+.center-num{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:#1a1208;line-height:1}
+.center-label{font-size:11px;font-weight:500;color:#6b5244;text-transform:uppercase;letter-spacing:0.5px}
+.center-sub{font-size:10px;color:#9b8270}
+
+/* orbits */
+.orbit{position:absolute;border-radius:50%;border:1px dashed rgba(199,10,36,0.15)}
+.orbit-1{width:200px;height:200px;animation:spin 25s linear infinite reverse}
+.orbit-2{width:320px;height:320px;animation:spin 35s linear infinite}
+.orbit-3{width:440px;height:440px;animation:spin 50s linear infinite reverse}
+
+/* provider cards on orbits */
+.pcard{position:absolute;background:#fff;border:1.5px solid #e8ddd0;border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:10px;white-space:nowrap;box-shadow:0 4px 16px rgba(26,18,8,0.08);transition:transform 0.2s;cursor:default}
+.pcard:hover{transform:scale(1.04)}
+.pcard-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.pcard-info{}
+.pcard-name{font-size:12px;font-weight:600;color:#1a1208;line-height:1.2}
+.pcard-meta{font-size:10px;color:#6b5244;display:flex;align-items:center;gap:4px}
+.pcard-star{color:#f59e0b;font-size:10px}
+.pcard-badge{display:inline-flex;align-items:center;gap:3px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50px;padding:1px 6px;font-size:9px;font-weight:600;color:#15803d}
+.pcard-dist{font-size:9px;color:#9b8270;background:#faf6ef;border-radius:50px;padding:1px 6px;border:1px solid #e8ddd0}
+
+/* orbit positioning — counter-rotate so cards stay upright */
+.o1-card-1{
+  transform:rotate(0deg) translate(100px) rotate(0deg);
+  animation:orbitCard1a 25s linear infinite reverse;
+}
+.o1-card-2{
+  transform:rotate(180deg) translate(100px) rotate(-180deg);
+  animation:orbitCard1b 25s linear infinite reverse;
+}
+.o2-card-1{
+  transform:rotate(45deg) translate(160px) rotate(-45deg);
+  animation:orbitCard2a 35s linear infinite;
+}
+.o2-card-2{
+  transform:rotate(200deg) translate(160px) rotate(-200deg);
+  animation:orbitCard2b 35s linear infinite;
+}
+.o3-card-1{
+  transform:rotate(120deg) translate(220px) rotate(-120deg);
+  animation:orbitCard3a 50s linear infinite reverse;
+}
+.o3-card-2{
+  transform:rotate(290deg) translate(220px) rotate(-290deg);
+  animation:orbitCard3b 50s linear infinite reverse;
+}
+
+/* AI search bar */
+.search-wrap{margin-top:8px}
+.search-box{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #e8ddd0;border-radius:16px;padding:14px 16px;transition:border-color 0.2s}
+.search-box:focus-within{border-color:#C70A24}
+.search-icon{color:#9b8270;flex-shrink:0}
+.search-input{border:none;outline:none;font-family:'Instrument Sans',sans-serif;font-size:14px;color:#1a1208;background:transparent;flex:1}
+.search-input::placeholder{color:#9b8270}
+.search-btn{background:#C70A24;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',sans-serif;white-space:nowrap}
+.search-hint{font-size:11px;color:#9b8270;margin-top:6px;padding-left:4px}
+
+/* KEYFRAMES */
+@keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes glowPulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+@keyframes orbitCard1a{from{transform:rotate(0deg) translate(100px) rotate(0deg)}to{transform:rotate(-360deg) translate(100px) rotate(360deg)}}
+@keyframes orbitCard1b{from{transform:rotate(180deg) translate(100px) rotate(-180deg)}to{transform:rotate(-180deg) translate(100px) rotate(180deg)}}
+@keyframes orbitCard2a{from{transform:rotate(45deg) translate(160px) rotate(-45deg)}to{transform:rotate(405deg) translate(160px) rotate(-405deg)}}
+@keyframes orbitCard2b{from{transform:rotate(200deg) translate(160px) rotate(-200deg)}to{transform:rotate(560deg) translate(160px) rotate(-560deg)}}
+@keyframes orbitCard3a{from{transform:rotate(120deg) translate(220px) rotate(-120deg)}to{transform:rotate(-240deg) translate(220px) rotate(240deg)}}
+@keyframes orbitCard3b{from{transform:rotate(290deg) translate(220px) rotate(-290deg)}to{transform:rotate(-70deg) translate(220px) rotate(70deg)}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">Near<span>Serve</span></div>
+  <div class="nav-links">
+    <a href="#">How it works</a>
+    <a href="#">Browse services</a>
+    <a href="#">Leaderboard</a>
+    <a href="#">For providers</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-login">Log in</a>
+    <button class="nav-cta">Post a job — free</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+
+  <!-- LEFT -->
+  <div class="hero-left">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      847 providers active right now
+    </div>
+
+    <h1 class="hero-h1">
+      Real locals.<br>
+      <em>Competing</em> for<br>
+      your job.
+    </h1>
+
+    <p class="hero-sub">
+      Describe what you need — our AI finds <strong>verified nearby providers</strong> instantly. They bid. You pick the best offer. <strong>Money stays safe in escrow</strong> until you're happy.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn-primary">
+        Post a job — it's free
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-secondary">Browse providers</button>
+    </div>
+
+    <!-- AI search -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="searchInput" placeholder="I need my bathroom tiled this weekend in Mirpur..." />
+        <button class="search-btn" onclick="doSearch()">Find pros →</button>
+      </div>
+      <p class="search-hint">AI understands plain language — just describe what you need</p>
+    </div>
+
+    <div class="trust-strip">
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="#22c55e" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Payment held in escrow
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="#3b82f6" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+        Admin-verified providers
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="#8b5cf6" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        AI trust score on every pro
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — ORBITS -->
+  <div class="hero-right">
+    <div class="orbit-wrap">
+
+      <!-- glow -->
+      <div class="center-glow"></div>
+
+      <!-- orbits -->
+      <div class="orbit orbit-1"></div>
+      <div class="orbit orbit-2"></div>
+      <div class="orbit orbit-3"></div>
+
+      <!-- center card -->
+      <div class="center-card" style="z-index:20">
+        <div class="center-num">4,800+</div>
+        <div class="center-label">Jobs completed</div>
+        <div class="center-sub">safely on NearServe</div>
+      </div>
+
+      <!-- orbit 1 cards -->
+      <div class="pcard o1-card-1" style="z-index:15">
+        <div class="pcard-avatar" style="background:#C70A24">AK</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Ahmed K.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 4.9
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">0.8 km</span>
+            <span>Trust 94</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard o1-card-2" style="z-index:15">
+        <div class="pcard-avatar" style="background:#7c3aed">SR</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Sara R.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 4.8
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">1.2 km</span>
+            <span>Trust 88</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- orbit 2 cards -->
+      <div class="pcard o2-card-1" style="z-index:14">
+        <div class="pcard-avatar" style="background:#059669">KM</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Karim M.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 5.0
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">2.1 km</span>
+            <span>Trust 97</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard o2-card-2" style="z-index:14">
+        <div class="pcard-avatar" style="background:#d97706">NI</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Nadia I.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 4.7
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">3.4 km</span>
+            <span>Trust 81</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- orbit 3 cards -->
+      <div class="pcard o3-card-1" style="z-index:13">
+        <div class="pcard-avatar" style="background:#0891b2">TH</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Tariq H.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 4.9
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">4.7 km</span>
+            <span>Trust 91</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard o3-card-2" style="z-index:13">
+        <div class="pcard-avatar" style="background:#be185d">RA</div>
+        <div class="pcard-info">
+          <div class="pcard-name">Rina A.</div>
+          <div class="pcard-meta">
+            <span class="pcard-star">★</span> 4.6
+            <span class="pcard-badge">✓ Verified</span>
+          </div>
+          <div class="pcard-meta" style="margin-top:2px">
+            <span class="pcard-dist">6.2 km</span>
+            <span>Trust 79</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function doSearch(){
+  const val = document.getElementById('searchInput').value.trim();
+  if(val) sendPrompt('User typed this in the NearServe AI search bar: "' + val + '" — what providers would the AI match and what job details would it extract?');
+}
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') doSearch();
+});
+</script>
+</body>
+</html>
+
+
+Create a single-page React + Vite landing page for "Marketeam" -- a marketing talent platform. Use Inter (400, 500, 600, 700) and Urbanist (600, 700) from Google Fonts. The page is a full-viewport hero with a header, left content area, right animated circles visualization, and a bottom logo ticker strip.
+
+---
+
+### Background
+
+Full-page background image covering the entire viewport:
+```
+https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260624_111401_56af5012-2263-45d3-849a-8688084d7c2a.png&w=1280&q=85
+```
+Applied as `background: url(...) center center / cover no-repeat` on the root `.app` container.
+
+---
+
+### Header
+
+- Flexbox row, `justify-content: space-between`, padding `24px 64px`, max-width `1920px`, centered.
+- **Left side**: Logo image + nav links
+  - Logo: `<img>` with height 32px from: `https://polo-pecan-73837341.figma.site/_assets/v11/17ae538989a509947a8de3892c644664895e69b1.png`
+  - Nav links: "Your Team", "Solutions", "Blog", "Pricing" -- color `#000000`, 15px, font-weight 400, with underline animation on hover (scaleX from 0 to 1, transform-origin left, 0.3s ease).
+- **Right side**: "Log In" link + "Join Now" button
+  - Log In: color `#ffffff`, 15px, weight 500, same underline hover as nav but white.
+  - Join Now: pill button (border-radius 50px), black bg (`#000000`), white text, padding `12px 26px`, 15px, weight 500. On hover a `#A068FF` fill slides in from left using `::after` with `translateX(-100%)` to `translateX(0)`, cubic-bezier(0.22, 1, 0.36, 1), 0.4s. Button uses `overflow: hidden`.
+  - The button is wrapped in a `.btn-border-wrap` div that has a rotating conic-gradient border using `::before` with `inset: -3px`, `padding: 3px`, mask technique for border-only effect. The gradient is: `conic-gradient(from var(--border-angle), #A068FF, #070319, #A068FF, #070319, #A068FF)`. It rotates via CSS `@property --border-angle` from `0deg` to `360deg` in 3s linear infinite.
+
+---
+
+### Hero Left
+
+- `flex: 0 1 600px`, `padding-top: 40px`
+- **Heading**: Typewriter effect, font Urbanist, 64px, weight 600, line-height 64px, letter-spacing -1.5px. Text: "Unlock Top Marketing Talent You Thought Was Out of Reach -- Now Just One Click Away!". The first 67 characters are colored `#000000`, the rest `#ffffff`. A blinking purple cursor (`#A068FF`) appears during typing. Typing speed: 35ms per character, starts after 400ms delay.
+- **"Start Project" button**: Same pill style as Join Now but slightly larger (padding `14px 28px`, 16px), bg `#060218`. Has a right-arrow chevron SVG icon (18x18). Hover fill slides from right (`translateX(100%)` to `translateX(0)`). Also wrapped in `.btn-border-wrap` with the same rotating gradient border. Appears after typing finishes (animation-delay 3.2s).
+- **Cursor element**: A purple cursor icon (SVG: pointer arrow filled `#A068FF`) + "David" label (pill badge, bg `#A068FF`, white text, 16px, weight 500, padding `8px 16px`, border-radius 20px). Positioned `margin-left: 290px`, `margin-top: 40px`. Appears with animation-delay 3.6s.
+
+---
+
+### Hero Right -- Circles Visualization
+
+- Container: `720x720px`, centered.
+- 4 concentric circles (orbits), each rotating slowly:
+  - Orbit 1 (innermost): 353px diameter, spins left (counterclockwise) 30s
+  - Orbit 2: 501px diameter, spins right 40s
+  - Orbit 3: 649px diameter, spins right 50s
+  - Orbit 4 (outermost): 797px diameter, spins left 60s
+- Each circle has a 1px gradient border: `linear-gradient(180deg, rgba(217, 161, 255, 0) 0%, rgba(217, 161, 255, 1) 43%, rgba(217, 161, 255, 0) 100%)` applied via the mask technique.
+- **Center circle (orbit-1)**: Displays an animated count-up number "20k+" (Urbanist 64px, weight 500) and "Specialists" label (Urbanist 16px, weight 600). Counter-rotates to stay upright.
+- **Avatars** placed on orbits using `transform: translate(-50%, -50%) rotate(Xdeg) translate(radius) rotate(-Xdeg)`:
+  - Avatar images (58px default, some 78px/88px) from these URLs:
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/aa51718fb3af3637e6d666b6543fc27a175fada6.png` (orbit 1, at 270deg, 177px radius, square with border-radius 20px, purple glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/ca755f7f93c1126fb8bdbf99ab364a33aa9ab272.png` (orbit 2, at 60deg, 251px, round, yellow glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/dc01064c7093dcc32674876ee3cf5e41c4a485c6.png` (orbit 2, at 180deg, 251px, 78px, pink glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/d5470a58b02388336141575048720f19a50de832.png` (orbit 2, at 300deg, 251px, square border-radius 20px, blue glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/018736aa5d0275c4ce56cfebaf2ae3007d81ca1e.png` (orbit 3, at 130deg, 325px, 88px, pink glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/c76d8a0b99676de31c014344bfaf75bad090758d.png` (orbit 4, at 30deg, 399px, purple glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/7b1b5f039de7b54cc9913e96c1923c3b15a157fa.png` (orbit 4, at 95deg, 399px, 88px, square border-radius 24px, orange glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/9ae171d8895199349755c43fbff00e122221a027.png` (orbit 4, at 220deg, 399px, 88px, square border-radius 24px, pink glow)
+    - `https://polo-pecan-73837341.figma.site/_assets/v11/926c9eb7b4bc1df846fa0e39f0b0dc3fefd80671.png` (orbit 4, at 320deg, 399px, purple glow)
+  - Each avatar has a staggered fly-in animation (scale 0.3 + rotate -180deg + blur -> normal), delays from 0.6s to 2.3s.
+
+---
+
+### Logo Ticker (Bottom)
+
+- Horizontal infinitely scrolling strip of partner logos, `gap: 64px`, 20s animation.
+- Fade masks on left/right edges (linear-gradient mask).
+- 5 unique SVG logos repeated 4x for seamless loop:
+  - `https://polo-pecan-73837341.figma.site/_assets/v11/1e7b0e6fcc016cd28aec5c68990118b8c54c35a5.svg`
+  - `https://polo-pecan-73837341.figma.site/_assets/v11/3eac03c183db2ae080d910159211c14843398b61.svg`
+  - `https://polo-pecan-73837341.figma.site/_assets/v11/17705a4c0023a0e5a99154dfb10582adbbf4260b.svg`
+  - `https://polo-pecan-73837341.figma.site/_assets/v11/0e5f442b09dc5c248e3e60d40a65505fb1887228.svg`
+  - `https://polo-pecan-73837341.figma.site/_assets/v11/63f99030ceb459e3c9ab9e429cfa2353491d3816.svg`
+- Each logo: `width: 137px`, `height: 40px`, `object-fit: contain`.
+
+---
+
+### Entrance Animations
+
+- Header: fade-down (translateY -20px to 0, 0.8s)
+- Hero left: fade-up (translateY 40px to 0, 1s)
+- Hero right circles: scale-in (scale 0.85 to 1 + opacity, 1.2s, delay 0.3s)
+- Logos section: fade-up, delay 0.6s
+- All using `cubic-bezier(0.22, 1, 0.36, 1)` easing.
+
+---
+
+### Responsive Breakpoints
+
+- **1280px**: circles scale 0.85
+- **1024px**: stack layout (flex-direction column), heading 48px, circles scale 0.7, nav gap shrinks
+- **768px**: hide nav, heading 36px, circles scale 0.5
+- **480px**: heading 28px, circles scale 0.4, smaller buttons/logos
+
+---
+
+### Key Colors
+
+- Primary accent: `#A068FF`
+- Background dark: `#060218` / `#070319`
+- Text dark: `#000000`
+- Text light: `#ffffff`
+- Body bg fallback: `#0a0a0a`
+
+---
+
+### Technical Details
+
+- React (useState, useEffect, useRef), Vite build
+- Custom `useCountUp` hook: animates 0 to 20 over 2s with easeOutCubic, starts after 1.2s delay
+- `TypewriterHeading` component: types char by char at configurable speed
+- CSS `@property --border-angle` for the animated border gradient
+- No external animation libraries -- pure CSS animations + JS for typewriter/counter
