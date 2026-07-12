@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Briefcase,
   Plus,
@@ -10,8 +10,9 @@ import {
   User,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   CUSTOMER_NAV,
   NAVBAR_CONFIG,
@@ -19,6 +20,7 @@ import {
 } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import Avatar from "@/components/shared/app/Avatar";
+import { useDemoAuth } from "@/components/providers/DemoAuthProvider";
 
 const ICONS = {
   briefcase: Briefcase,
@@ -33,7 +35,15 @@ type CustomerShellProps = {
 
 export default function CustomerShell({ children }: CustomerShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, role, setDemoRole } = useDemoAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const displayName = user?.name ?? "Maya Chen";
+
+  // Design preview: entering the customer app implies customer session
+  useEffect(() => {
+    if (role !== "customer") setDemoRole("customer");
+  }, [role, setDemoRole]);
 
   const isActive = (path: string) => {
     if (path === ROUTES.CUSTOMER_HOME) {
@@ -42,7 +52,15 @@ export default function CustomerShell({ children }: CustomerShellProps) {
     return pathname === path || pathname.startsWith(`${path}/`);
   };
 
-  const navLink = (item: (typeof CUSTOMER_NAV)[number], onClick?: () => void) => {
+  const handleLogout = () => {
+    logout();
+    router.push(ROUTES.HOME);
+  };
+
+  const navLink = (
+    item: (typeof CUSTOMER_NAV)[number],
+    onClick?: () => void,
+  ) => {
     const Icon = ICONS[item.icon as keyof typeof ICONS] ?? Briefcase;
     const active = isActive(item.path);
     return (
@@ -101,14 +119,22 @@ export default function CustomerShell({ children }: CustomerShellProps) {
                 : "text-warm hover:bg-white/75 hover:text-ink",
             )}
           >
-            <Avatar name="You" size="sm" />
-            <span className="flex flex-col items-start leading-tight">
-              <span>Profile</span>
+            <Avatar name={displayName} size="sm" />
+            <span className="flex flex-col items-start leading-tight min-w-0">
+              <span className="truncate max-w-[140px]">{displayName}</span>
               <span className="text-[10px] text-muted font-normal normal-case tracking-normal">
-                Account settings
+                Profile & settings
               </span>
             </span>
           </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted hover:bg-white/75 hover:text-[#8b1a1a] transition-colors"
+          >
+            <LogOut className="size-4" />
+            Log out
+          </button>
         </div>
       </aside>
 
@@ -135,21 +161,31 @@ export default function CustomerShell({ children }: CustomerShellProps) {
               onClick={() => setMobileOpen((v) => !v)}
               className="p-2 rounded-xl border border-border bg-white/90 text-ink shadow-sm"
             >
-              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+              {mobileOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Menu className="size-5" />
+              )}
             </button>
           </div>
         </header>
 
         {mobileOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]" onClick={() => setMobileOpen(false)}>
+          <div
+            className="lg:hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]"
+            onClick={() => setMobileOpen(false)}
+          >
             <div
               className="absolute right-0 top-0 h-full w-[280px] app-shell-bg border-l border-border p-4 flex flex-col shadow-2xl animate-[slide-in-right_0.45s_cubic-bezier(0.22,1,0.36,1)]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <span className="text-xs uppercase tracking-[0.14em] text-muted font-medium">
-                  Menu
-                </span>
+                <div className="flex items-center gap-2.5">
+                  <Avatar name={displayName} size="sm" />
+                  <span className="text-sm font-semibold text-ink">
+                    {displayName}
+                  </span>
+                </div>
                 <button
                   type="button"
                   aria-label="Close"
@@ -177,6 +213,14 @@ export default function CustomerShell({ children }: CustomerShellProps) {
                   Profile
                 </Link>
               </nav>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="mt-4 flex items-center gap-2 text-sm font-medium text-[#8b1a1a]"
+              >
+                <LogOut className="size-4" />
+                Log out
+              </button>
             </div>
           </div>
         )}

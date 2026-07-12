@@ -78,7 +78,7 @@ function RegisterFields({
         size="large"
         className="!h-12 !rounded-full !font-semibold !text-base !mt-6"
       >
-        Create account — free
+        Create account
       </Button>
 
       <p className="text-[11px] text-muted text-center mt-4 leading-relaxed">
@@ -108,7 +108,7 @@ export default function RegisterForm() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Join free — post jobs or start earning as a provider."
+      subtitle="Join NearServe — post jobs or start earning as a provider."
       footer={
         <>
           <span className="text-muted">Already have an account? </span>

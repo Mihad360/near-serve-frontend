@@ -334,10 +334,10 @@ export default function ServicesContent() {
                 with the right providers anyway.
               </p>
               <Link
-                href={ROUTES.CUSTOMER_POST_JOB}
+                href={ROUTES.REGISTER}
                 className="inline-block bg-brand text-white font-semibold px-8 py-4 rounded-full hover:bg-brand-dark transition-all duration-500 hover:scale-105"
               >
-                Post a custom job — free →
+                Get started — post a job →
               </Link>
             </div>
           </div>

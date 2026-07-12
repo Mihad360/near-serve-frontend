@@ -67,6 +67,49 @@ export const PROVIDER_NAV = [
     path: "/provider/earnings",
     icon: "wallet",
   },
+  {
+    name: "Payouts",
+    path: "/provider/payouts",
+    icon: "bank",
+  },
+] as const;
+
+export const ADMIN_NAV = [
+  {
+    name: "Overview",
+    path: "/admin",
+    icon: "layout-dashboard",
+  },
+  {
+    name: "Providers",
+    path: "/admin/providers",
+    icon: "hard-hat",
+  },
+  {
+    name: "Users",
+    path: "/admin/users",
+    icon: "users",
+  },
+  {
+    name: "Jobs",
+    path: "/admin/jobs",
+    icon: "briefcase",
+  },
+  {
+    name: "Payments",
+    path: "/admin/payments",
+    icon: "credit-card",
+  },
+  {
+    name: "Disputes",
+    path: "/admin/disputes",
+    icon: "scale",
+  },
+  {
+    name: "Reviews",
+    path: "/admin/reviews",
+    icon: "star",
+  },
 ] as const;
 
 export const ROUTES = {
@@ -101,6 +144,7 @@ export const ROUTES = {
   PROVIDER_MY_BIDS: "/provider/my-bids",
   PROVIDER_ACTIVE: (jobId: string) => `/provider/active/${jobId}`,
   PROVIDER_EARNINGS: "/provider/earnings",
+  PROVIDER_PAYOUTS: "/provider/payouts",
   PROVIDER_MESSAGES: "/provider/messages",
   PROVIDER_CONVERSATION: (id: string) => `/provider/messages/${id}`,
   PROVIDER_ONBOARDING: "/provider/onboarding",
@@ -109,13 +153,19 @@ export const ROUTES = {
   // admin
   ADMIN_HOME: "/admin",
   ADMIN_USERS: "/admin/users",
+  ADMIN_USER: (userId: string) => `/admin/users/${userId}`,
   ADMIN_PROVIDERS: "/admin/providers",
+  ADMIN_PROVIDER: (providerId: string) => `/admin/providers/${providerId}`,
   ADMIN_JOBS: "/admin/jobs",
+  ADMIN_JOB: (jobId: string) => `/admin/jobs/${jobId}`,
   ADMIN_PAYMENTS: "/admin/payments",
+  ADMIN_PAYMENT: (paymentId: string) => `/admin/payments/${paymentId}`,
   ADMIN_DISPUTES: "/admin/disputes",
+  ADMIN_DISPUTE: (jobId: string) => `/admin/disputes/${jobId}`,
   ADMIN_REVIEWS: "/admin/reviews",
   ADMIN_LEADERBOARD: "/admin/leaderboard",
   ADMIN_ANALYTICS: "/admin/analytics",
+  ADMIN_SETTINGS: "/admin/settings",
 } as const;
 
 export const NAVBAR_CONFIG = {

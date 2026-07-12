@@ -211,10 +211,10 @@ export default function ForProvidersContent() {
 
             <div className="animate-fade-up mt-8 flex flex-wrap gap-3 hero-delay-3">
               <Link
-                href={ROUTES.PROVIDER_ONBOARDING}
+                href={ROUTES.REGISTER}
                 className="bg-brand text-white text-sm font-semibold px-6 py-3.5 rounded-full hover:bg-brand-dark transition-all duration-500 hover:-translate-y-0.5 shadow-[0_4px_24px_rgba(199,10,36,0.45)]"
               >
-                Start earning — join free →
+                Join as a provider →
               </Link>
               <Link
                 href={ROUTES.HOW_IT_WORKS}
@@ -402,15 +402,15 @@ export default function ForProvidersContent() {
               Ready to grow your business?
             </h2>
             <p className="text-muted mb-8 max-w-md mx-auto">
-              Join free today. Start bidding on jobs near you within 24 hours of
-              approval.
+              Create your provider account today. Start bidding on jobs near you
+              within 24 hours of approval.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
-                href={ROUTES.PROVIDER_ONBOARDING}
+                href={ROUTES.REGISTER}
                 className="bg-brand text-white font-semibold px-8 py-4 rounded-full hover:bg-brand-dark transition-all hover:scale-105 shadow-[0_4px_24px_rgba(199,10,36,0.3)]"
               >
-                Join as a provider — free →
+                Join as a provider →
               </Link>
               <Link
                 href={ROUTES.HOW_IT_WORKS}

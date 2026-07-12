@@ -19,11 +19,11 @@ export const JOB_STATUS_STYLES: Record<JobStatus, string> = {
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  held: "In escrow",
-  released: "Released",
+  held: "Held safely",
+  released: "Paid to provider",
   refunded: "Refunded",
-  pending: "Pending",
-  disputed: "Disputed",
+  pending: "Waiting for card",
+  disputed: "Under review",
 };
 
 export const PAYMENT_STATUS_STYLES: Record<PaymentStatus, string> = {

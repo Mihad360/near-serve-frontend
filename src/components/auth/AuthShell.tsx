@@ -47,8 +47,8 @@ export default function AuthShell({
             your job.
           </h1>
           <p className="text-white/60 text-sm md:text-base max-w-sm leading-relaxed">
-            Post a job free. Get bids from verified providers. Pay safely
-            through escrow until you&apos;re happy.
+            Create an account. Get bids from verified providers. Pay safely
+            through secure payment hold until you&apos;re happy.
           </p>
 
           <div className="mt-8 grid grid-cols-3 gap-4 max-w-sm">

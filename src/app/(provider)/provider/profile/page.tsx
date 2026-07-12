@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Check, Star } from "lucide-react";
 import { PROVIDER_PROFILE, JOB_CATEGORIES } from "@/data/providerMock";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/shared/app/PageHeader";
 import Avatar from "@/components/shared/app/Avatar";
+import { ROUTES } from "@/utils/navigation";
 
 export default function ProviderProfilePage() {
   const [name, setName] = useState(PROVIDER_PROFILE.name);
@@ -16,7 +18,7 @@ export default function ProviderProfilePage() {
   const [radius, setRadius] = useState(
     String(PROVIDER_PROFILE.serviceRadiusKm),
   );
-  const [payout, setPayout] = useState(PROVIDER_PROFILE.payoutMethod);
+  const payout = PROVIDER_PROFILE.payoutMethod;
   const [categories, setCategories] = useState<string[]>(
     PROVIDER_PROFILE.categories,
   );
@@ -130,16 +132,19 @@ export default function ProviderProfilePage() {
           />
         </label>
 
-        <label className="block">
-          <span className="block text-sm font-medium text-ink mb-1.5">
-            Payout method
-          </span>
-          <input
-            value={payout}
-            onChange={(e) => setPayout(e.target.value)}
-            className="w-full rounded-xl border border-border bg-cream/50 px-4 py-3 text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
-          />
-        </label>
+        <div className="rounded-2xl border border-border bg-cream/40 p-4">
+          <p className="text-sm font-medium text-ink mb-1">How you get paid</p>
+          <p className="text-sm text-muted mb-3">
+            Managed by Stripe Express
+            {payout ? ` · ${payout}` : ""}. Update bank details in Payout setup.
+          </p>
+          <Link
+            href={ROUTES.PROVIDER_PAYOUTS}
+            className="text-sm font-semibold text-brand hover:underline"
+          >
+            Open payout setup →
+          </Link>
+        </div>
 
         <fieldset>
           <legend className="text-sm font-medium text-ink mb-2">

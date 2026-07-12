@@ -4,6 +4,7 @@ import type {
   FeedJob,
   ProviderBid,
   ProviderProfile,
+  StripeAccountStatus,
 } from "@/types/job";
 
 /**
@@ -13,6 +14,48 @@ import type {
  * - Or flip `MOCK_FORCE_PENDING` below to `true` for a global pending state
  */
 export const MOCK_FORCE_PENDING = false;
+
+/**
+ * Stripe Express mock:
+ * - Default: connected & ready to receive payouts
+ * - Incomplete: visit `/provider/payouts?stripe=setup` or `/provider/payouts?stripe=pending`
+ * - Or flip `MOCK_STRIPE_STATUS` below
+ */
+export type MockStripePreset = "none" | "pending" | "ready";
+export const MOCK_STRIPE_STATUS: MockStripePreset = "ready";
+
+export const STRIPE_STATUS_PRESETS: Record<
+  MockStripePreset,
+  StripeAccountStatus
+> = {
+  none: {
+    hasAccount: false,
+    detailsSubmitted: false,
+    chargesEnabled: false,
+    payoutsEnabled: false,
+  },
+  pending: {
+    hasAccount: true,
+    detailsSubmitted: false,
+    chargesEnabled: false,
+    payoutsEnabled: false,
+  },
+  ready: {
+    hasAccount: true,
+    detailsSubmitted: true,
+    chargesEnabled: true,
+    payoutsEnabled: true,
+    bankLast4: "8821",
+  },
+};
+
+export function getStripeAccountStatus(
+  query?: string | null,
+): StripeAccountStatus {
+  if (query === "setup" || query === "none") return STRIPE_STATUS_PRESETS.none;
+  if (query === "pending") return STRIPE_STATUS_PRESETS.pending;
+  return STRIPE_STATUS_PRESETS[MOCK_STRIPE_STATUS];
+}
 
 export const PROVIDER_PROFILE: ProviderProfile = {
   id: "prov-1",

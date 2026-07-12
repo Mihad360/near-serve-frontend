@@ -3,10 +3,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthCta } from "@/hooks/useAuthCta";
+import { ROUTES } from "@/utils/navigation";
 
 export default function Hero() {
   const [searchValue, setSearchValue] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const { primary, role } = useAuthCta();
+  const router = useRouter();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -14,9 +20,16 @@ export default function Hero() {
   }, []);
 
   const handleSearch = () => {
-    if (searchValue.trim()) {
-      console.log("Search:", searchValue);
+    if (!searchValue.trim()) return;
+    if (role === "customer") {
+      router.push(ROUTES.CUSTOMER_POST_JOB);
+      return;
     }
+    if (role === "provider") {
+      router.push(ROUTES.PROVIDER_HOME);
+      return;
+    }
+    router.push(ROUTES.REGISTER);
   };
 
   return (
@@ -51,8 +64,11 @@ export default function Hero() {
           </p>
 
           <div className="flex items-center gap-3.5 flex-wrap">
-            <button className="bg-[#C70A24] text-white text-[15px] font-semibold px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#a50820] transition-all hover:-translate-y-px">
-              Post a job — it's free
+            <Link
+              href={primary.href}
+              className="bg-[#C70A24] text-white text-[15px] font-semibold px-7 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#a50820] transition-all hover:-translate-y-px"
+            >
+              {primary.label}
               <svg
                 width="16"
                 height="16"
@@ -63,10 +79,23 @@ export default function Hero() {
               >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </button>
-            <button className="bg-transparent text-[#1a1208] text-[15px] font-medium px-6 py-3.5 rounded-full border-[1.5px] border-[#c8b8a8] hover:border-[#1a1208] hover:bg-white transition-all">
-              Browse providers
-            </button>
+            </Link>
+            <Link
+              href={
+                role === "guest"
+                  ? ROUTES.SERVICES
+                  : role === "customer"
+                    ? ROUTES.CUSTOMER_HOME
+                    : ROUTES.PROVIDER_HOME
+              }
+              className="bg-transparent text-[#1a1208] text-[15px] font-medium px-6 py-3.5 rounded-full border-[1.5px] border-[#c8b8a8] hover:border-[#1a1208] hover:bg-white transition-all"
+            >
+              {role === "guest"
+                ? "Browse services"
+                : role === "customer"
+                  ? "My jobs"
+                  : "Job feed"}
+            </Link>
           </div>
 
           {/* AI search */}

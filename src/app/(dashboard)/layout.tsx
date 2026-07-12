@@ -1,15 +1,11 @@
 import type { ReactNode } from "react";
-import { DashboardNavbar } from "@/components/dashboard-navbar";
-import { Sidebar } from "@/components/sidebar";
+import AdminShell from "@/components/admin/AdminShell";
 
-export default function DashboardLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
-  return (
-    <>
-      <Sidebar />
-      <DashboardNavbar />
-      {children}
-    </>
-  );
+export const metadata = {
+  title: "NearServe · Admin",
+  description: "NearServe admin dashboard — providers, jobs, payments, disputes.",
+};
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return <AdminShell>{children}</AdminShell>;
 }

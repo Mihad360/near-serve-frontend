@@ -8,7 +8,10 @@ import {
   Navigation,
   Check,
   Clock,
+  ArrowRight,
+  Gavel,
 } from "lucide-react";
+import { toast } from "sonner";
 import { getFeedJobById, formatDistance } from "@/data/providerMock";
 import JobMap from "@/components/customer/JobMap";
 import StatusChip from "@/components/customer/StatusChip";
@@ -46,6 +49,9 @@ export default function ProviderJobDetailPage({ params }: PageProps) {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitted(true);
+    toast.success("Bid placed", {
+      description: "You'll be notified if the customer accepts.",
+    });
   }
 
   return (
@@ -89,6 +95,40 @@ export default function ProviderJobDetailPage({ params }: PageProps) {
           </span>
         </div>
       </div>
+
+      {submitted && (
+        <section className="rounded-2xl border border-brand/20 bg-gradient-to-br from-white to-brand/[0.04] p-5 md:p-6 animate-fade-up shadow-[0_8px_32px_rgba(199,10,36,0.08)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand mb-2">
+            What&apos;s next
+          </p>
+          <h2 className="font-fraunces text-xl font-semibold text-ink mb-2">
+            Bid is in — wait for accept
+          </h2>
+          <p className="text-sm text-muted mb-4 leading-relaxed">
+            After you bid: wait for the customer to choose you → they pay to
+            confirm → chat opens → you set the job in progress.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Link
+              href={ROUTES.PROVIDER_MY_BIDS}
+              className="app-btn flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold bg-brand text-white hover:bg-brand-dark"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Gavel className="size-4" />
+                Track in My bids
+              </span>
+              <ArrowRight className="size-4 shrink-0" />
+            </Link>
+            <Link
+              href={ROUTES.PROVIDER_HOME}
+              className="app-btn flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold bg-ink text-white hover:bg-ink/90"
+            >
+              <span>Keep browsing feed</span>
+              <ArrowRight className="size-4 shrink-0" />
+            </Link>
+          </div>
+        </section>
+      )}
 
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 space-y-6">
@@ -146,31 +186,30 @@ export default function ProviderJobDetailPage({ params }: PageProps) {
           {submitted ? (
             <div className="app-surface rounded-2xl p-6 text-center">
               <div className="relative mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-[#e8f5e9] text-[#1b5e20] border border-[#c8e6c9]/60">
-                <span aria-hidden className="absolute inset-0 rounded-2xl animate-pulse-ring bg-[#c8e6c9]/50" />
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-2xl animate-pulse-ring bg-[#c8e6c9]/50"
+                />
                 <Check className="relative size-7" />
               </div>
               <h2 className="font-fraunces text-xl font-semibold text-ink mb-2">
                 Bid submitted
               </h2>
-              <p className="text-sm text-muted mb-5 leading-relaxed">
-                Preview only — nothing was sent. You&apos;d see this bid under My
-                bids.
+              <p className="text-sm text-muted mb-1 leading-relaxed">
+                {amount
+                  ? `${formatCurrency(Number(amount))} · ${timeline}`
+                  : "Your offer is pending customer review."}
               </p>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href={ROUTES.PROVIDER_MY_BIDS}
-                  className="app-btn rounded-xl bg-brand text-white font-semibold py-3 text-sm shadow-[0_6px_20px_rgba(199,10,36,0.22)]"
-                >
-                  View my bids
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(false)}
-                  className="app-btn rounded-xl border border-border text-ink font-semibold py-3 text-sm bg-white/80"
-                >
-                  Edit bid
-                </button>
-              </div>
+              <p className="text-xs text-muted mb-5">
+                Preview only — API will create the bid record.
+              </p>
+              <button
+                type="button"
+                onClick={() => setSubmitted(false)}
+                className="app-btn rounded-xl border border-border text-ink font-semibold py-3 px-5 text-sm bg-white/80 w-full"
+              >
+                Edit bid
+              </button>
             </div>
           ) : (
             <form

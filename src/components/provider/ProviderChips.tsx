@@ -2,10 +2,10 @@ import type { BidStatus, EarningStatus } from "@/types/job";
 import { cn } from "@/lib/utils";
 
 export const BID_STATUS_LABELS: Record<BidStatus, string> = {
-  pending: "Pending",
+  pending: "New offer",
   accepted: "Accepted",
-  rejected: "Rejected",
-  lost: "Lost",
+  rejected: "Declined",
+  lost: "Not chosen",
 };
 
 export const BID_STATUS_STYLES: Record<BidStatus, string> = {
@@ -16,9 +16,9 @@ export const BID_STATUS_STYLES: Record<BidStatus, string> = {
 };
 
 export const EARNING_STATUS_LABELS: Record<EarningStatus, string> = {
-  pending: "Pending",
-  paid: "Paid",
-  held: "In escrow",
+  pending: "Waiting for approval",
+  paid: "Paid out",
+  held: "Held safely",
 };
 
 export const EARNING_STATUS_STYLES: Record<EarningStatus, string> = {

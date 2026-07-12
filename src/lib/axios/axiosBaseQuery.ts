@@ -19,20 +19,27 @@ export const axiosBaseQuery =
     unknown,
     unknown
   > =>
-  async ({ url, method, data, params, headers }) => {
+  async ({ url, method, data, params, headers, contentType }) => {
     try {
+      const isFormData =
+        typeof FormData !== "undefined" && data instanceof FormData;
+
       const result = await axiosInstance({
         url: baseUrl + url,
         method,
         data,
         params,
-        headers,
+        headers: {
+          ...headers,
+          // Let the browser set multipart boundary for FormData
+          ...(contentType && !isFormData
+            ? { "Content-Type": contentType }
+            : {}),
+        },
       });
-      // console.log(result);
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
-      // console.log(err.response);
       return {
         error: {
           status: err.response?.status,

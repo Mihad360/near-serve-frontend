@@ -38,6 +38,31 @@ export default function MyBidsPage() {
         description="Track pending, accepted, and lost bids."
       />
 
+      {mockProviderBids.some((b) => b.status === "accepted") && (
+        <div className="mb-6 rounded-2xl border border-brand/20 bg-gradient-to-br from-white to-brand/[0.04] p-4 md:p-5 animate-fade-up">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand mb-1">
+            Accepted — next step
+          </p>
+          <p className="text-sm text-muted mb-3">
+            Customer confirmed payment. Open the active job to set in progress
+            and chat.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {mockProviderBids
+              .filter((b) => b.status === "accepted")
+              .map((b) => (
+                <Link
+                  key={b.id}
+                  href={ROUTES.PROVIDER_ACTIVE(b.jobId)}
+                  className="app-btn rounded-xl bg-brand text-white text-xs font-semibold px-3.5 py-2 hover:bg-brand-dark"
+                >
+                  Start · {b.jobTitle.length > 24 ? `${b.jobTitle.slice(0, 24)}…` : b.jobTitle}
+                </Link>
+              ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 scrollbar-none animate-fade-up hero-delay-1">
         {FILTERS.map((f) => (
           <button

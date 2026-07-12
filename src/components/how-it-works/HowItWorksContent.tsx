@@ -220,10 +220,10 @@ export default function HowItWorksContent() {
 
             <div className="animate-fade-up mt-8 flex flex-wrap gap-3 hero-delay-3">
               <Link
-                href={ROUTES.CUSTOMER_POST_JOB}
+                href={ROUTES.REGISTER}
                 className="bg-brand text-white text-sm font-semibold px-6 py-3.5 rounded-full hover:bg-brand-dark transition-all duration-500 hover:-translate-y-0.5 shadow-[0_4px_20px_rgba(199,10,36,0.3)]"
               >
-                Post a job — free →
+                Get started →
               </Link>
               <Link
                 href={ROUTES.FOR_PROVIDERS}
@@ -379,15 +379,15 @@ export default function HowItWorksContent() {
               Ready to get it done?
             </h2>
             <p className="text-muted mb-8 max-w-md mx-auto">
-              Post your first job free. No credit card. Providers start bidding
-              within minutes.
+              Create an account, post a job, and providers start bidding within
+              minutes. Escrow keeps payment safe.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
-                href={ROUTES.CUSTOMER_POST_JOB}
+                href={ROUTES.REGISTER}
                 className="bg-brand text-white font-semibold px-8 py-4 rounded-full hover:bg-brand-dark transition-all hover:scale-105"
               >
-                Post a job — free →
+                Get started →
               </Link>
               <Link
                 href={ROUTES.FOR_PROVIDERS}

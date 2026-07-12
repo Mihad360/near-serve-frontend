@@ -54,7 +54,7 @@ export default function LoginForm() {
         <>
           <span className="text-muted">Don&apos;t have an account? </span>
           <Link href={ROUTES.REGISTER} className="text-brand font-semibold hover:underline">
-            Sign up free
+            Sign up
           </Link>
         </>
       }

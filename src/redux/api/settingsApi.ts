@@ -1,34 +1,36 @@
 import { baseApi } from "./baseApi";
+import { buildQueryParams } from "./queryParams";
 
 export const settingsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // About (read-only public)
     getAllAbout: builder.query({
-      query: () => ({ url: "/about/", method: "GET" }),
+      query: (args) => {
+        const params = buildQueryParams(args);
+        return { url: "/about/", method: "GET", params };
+      },
       providesTags: ["about"],
     }),
 
-    // Privacy (read-only public)
     getAllPrivacy: builder.query({
-      query: () => ({ url: "/privacy/", method: "GET" }),
+      query: (args) => {
+        const params = buildQueryParams(args);
+        return { url: "/privacy/", method: "GET", params };
+      },
       providesTags: ["privacy"],
     }),
 
-    // Terms (read-only public)
     getAllTerms: builder.query({
-      query: () => ({ url: "/term/", method: "GET" }),
+      query: (args) => {
+        const params = buildQueryParams(args);
+        return { url: "/term/", method: "GET", params };
+      },
       providesTags: ["terms"],
     }),
   }),
 });
 
 export const {
-  // About
   useGetAllAboutQuery,
-
-  // Privacy
   useGetAllPrivacyQuery,
-
-  // Terms
   useGetAllTermsQuery,
 } = settingsApi;

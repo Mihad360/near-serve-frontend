@@ -100,6 +100,16 @@ export type ProviderProfile = {
   payoutMethod: string;
 };
 
+/** Stripe Express Connect status — mirrors provider Stripe APIs */
+export type StripeAccountStatus = {
+  hasAccount: boolean;
+  detailsSubmitted: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  /** Display-only bank last4 once connected */
+  bankLast4?: string;
+};
+
 export type EarningStatus = "pending" | "paid" | "held";
 
 export type Earning = {

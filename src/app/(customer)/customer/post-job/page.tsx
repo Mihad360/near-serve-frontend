@@ -32,22 +32,45 @@ export default function PostJobPage() {
 
   if (submitted) {
     return (
-      <div className="max-w-lg mx-auto text-center py-16 animate-fade-up">
-        <div className="relative mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-[#e8f5e9] text-[#1b5e20] border border-[#c8e6c9]/60 shadow-[0_8px_28px_rgba(27,94,32,0.12)]">
-          <span aria-hidden className="absolute inset-0 rounded-2xl animate-pulse-ring bg-[#c8e6c9]/50" />
-          <Check className="relative size-8" />
+      <div className="max-w-lg mx-auto py-12 animate-fade-up">
+        <div className="text-center mb-8">
+          <div className="relative mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-[#e8f5e9] text-[#1b5e20] border border-[#c8e6c9]/60 shadow-[0_8px_28px_rgba(27,94,32,0.12)]">
+            <span aria-hidden className="absolute inset-0 rounded-2xl animate-pulse-ring bg-[#c8e6c9]/50" />
+            <Check className="relative size-8" />
+          </div>
+          <h1 className="font-fraunces text-3xl font-semibold text-ink mb-3">
+            Job posted
+          </h1>
+          <p className="text-muted leading-relaxed">
+            Nearby providers can now bid. You&apos;ll pick a winner, then pay to
+            confirm before work starts.
+          </p>
         </div>
-        <h1 className="font-fraunces text-3xl font-semibold text-ink mb-3">
-          Job posted
-        </h1>
-        <p className="text-muted mb-8 leading-relaxed">
-          Providers nearby will start bidding shortly. This is a design preview —
-          nothing was sent to a server.
-        </p>
+
+        <div className="rounded-2xl border border-brand/20 bg-gradient-to-br from-white to-brand/[0.04] p-5 mb-6 text-left">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand mb-2">
+            What&apos;s next
+          </p>
+          <ol className="space-y-2.5 text-sm text-ink">
+            <li className="flex gap-2">
+              <span className="font-semibold text-brand">1.</span>
+              Wait for offers on your job
+            </li>
+            <li className="flex gap-2">
+              <span className="font-semibold text-brand">2.</span>
+              Choose the best provider
+            </li>
+            <li className="flex gap-2">
+              <span className="font-semibold text-brand">3.</span>
+              Pay to confirm → chat opens → work begins
+            </li>
+          </ol>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href={ROUTES.CUSTOMER_HOME}
-            className="app-btn rounded-xl bg-brand text-white font-semibold px-5 py-3 text-sm shadow-[0_6px_20px_rgba(199,10,36,0.22)]"
+            className="app-btn rounded-xl bg-brand text-white font-semibold px-5 py-3 text-sm shadow-[0_6px_20px_rgba(199,10,36,0.22)] text-center"
           >
             Back to my jobs
           </Link>

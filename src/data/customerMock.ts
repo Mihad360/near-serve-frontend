@@ -388,7 +388,7 @@ export const mockConversations: Conversation[] = [
         conversationId: "conv-4",
         senderId: "cust-1",
         senderRole: "customer",
-        text: "Looks perfect. Releasing escrow now.",
+        text: "Looks perfect. Releasing payment now.",
         createdAt: "2026-07-02T18:00:00Z",
       },
       {

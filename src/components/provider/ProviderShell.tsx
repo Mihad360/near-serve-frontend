@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutGrid,
   Gavel,
@@ -11,8 +11,10 @@ import {
   Menu,
   X,
   ClipboardList,
+  LogOut,
+  Landmark,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   PROVIDER_NAV,
   NAVBAR_CONFIG,
@@ -20,12 +22,14 @@ import {
 } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import Avatar from "@/components/shared/app/Avatar";
+import { useDemoAuth } from "@/components/providers/DemoAuthProvider";
 
 const ICONS = {
   "layout-grid": LayoutGrid,
   gavel: Gavel,
   message: MessageSquare,
   wallet: Wallet,
+  bank: Landmark,
 } as const;
 
 type ProviderShellProps = {
@@ -34,7 +38,15 @@ type ProviderShellProps = {
 
 export default function ProviderShell({ children }: ProviderShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, role, setDemoRole } = useDemoAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const displayName = user?.name ?? "Alex Rivera";
+
+  // Design preview: entering the provider app implies provider session
+  useEffect(() => {
+    if (role !== "provider") setDemoRole("provider");
+  }, [role, setDemoRole]);
 
   const isActive = (path: string) => {
     if (path === ROUTES.PROVIDER_HOME) {
@@ -45,6 +57,11 @@ export default function ProviderShell({ children }: ProviderShellProps) {
       );
     }
     return pathname === path || pathname.startsWith(`${path}/`);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push(ROUTES.HOME);
   };
 
   const navLink = (
@@ -114,14 +131,22 @@ export default function ProviderShell({ children }: ProviderShellProps) {
                 : "text-warm hover:bg-white/75 hover:text-ink",
             )}
           >
-            <Avatar name="Pro" size="sm" />
-            <span className="flex flex-col items-start leading-tight">
-              <span>Profile</span>
+            <Avatar name={displayName} size="sm" />
+            <span className="flex flex-col items-start leading-tight min-w-0">
+              <span className="truncate max-w-[140px]">{displayName}</span>
               <span className="text-[10px] text-muted font-normal normal-case tracking-normal">
                 Account & payouts
               </span>
             </span>
           </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted hover:bg-white/75 hover:text-[#8b1a1a] transition-colors"
+          >
+            <LogOut className="size-4" />
+            Log out
+          </button>
         </div>
       </aside>
 
@@ -154,9 +179,12 @@ export default function ProviderShell({ children }: ProviderShellProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <span className="text-xs uppercase tracking-[0.14em] text-muted font-medium">
-                  Provider menu
-                </span>
+                <div className="flex items-center gap-2.5">
+                  <Avatar name={displayName} size="sm" />
+                  <span className="text-sm font-semibold text-ink">
+                    {displayName}
+                  </span>
+                </div>
                 <button
                   type="button"
                   aria-label="Close"
@@ -197,6 +225,14 @@ export default function ProviderShell({ children }: ProviderShellProps) {
                   Profile
                 </Link>
               </nav>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="mt-4 flex items-center gap-2 text-sm font-medium text-[#8b1a1a]"
+              >
+                <LogOut className="size-4" />
+                Log out
+              </button>
             </div>
           </div>
         )}

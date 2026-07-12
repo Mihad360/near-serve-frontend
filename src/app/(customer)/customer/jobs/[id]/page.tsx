@@ -6,10 +6,10 @@ import {
   ArrowLeft,
   MapPin,
   MessageSquare,
-  ShieldCheck,
-  Star,
   Check,
+  ArrowRight,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   getBidsForJob,
   getConversationForJob,
@@ -18,10 +18,12 @@ import {
 } from "@/data/customerMock";
 import JobMap from "@/components/customer/JobMap";
 import StatusChip from "@/components/customer/StatusChip";
+import JobBidsPanel from "@/components/customer/JobBidsPanel";
+import SecurePaymentCard from "@/components/customer/SecurePaymentCard";
+import PaymentHowItWorks from "@/components/customer/PaymentHowItWorks";
 import {
   formatCurrency,
   formatDate,
-  formatDateTime,
   JOB_STATUS_LABELS,
 } from "@/lib/customer/format";
 import type { JobStatus } from "@/types/job";
@@ -50,6 +52,8 @@ export default function JobDetailPage({ params }: PageProps) {
   const [acceptedBid, setAcceptedBid] = useState<string | null>(
     job?.acceptedBidId ?? null,
   );
+  const [paymentHeld, setPaymentHeld] = useState(!!payment);
+  const [localStatus, setLocalStatus] = useState<JobStatus | null>(null);
 
   if (!job) {
     return (
@@ -62,10 +66,46 @@ export default function JobDetailPage({ params }: PageProps) {
     );
   }
 
+  const status = localStatus ?? job.status;
   const statusIndex =
-    job.status === "disputed"
+    status === "disputed"
       ? TIMELINE.indexOf("in_progress")
-      : TIMELINE.indexOf(job.status);
+      : TIMELINE.indexOf(status);
+
+  const acceptedBidData = bids.find((b) => b.id === acceptedBid);
+  const canAccept =
+    (status === "bidding" || status === "open") && !acceptedBid;
+  const showAfterAccept =
+    !!acceptedBid &&
+    (status === "booked" ||
+      status === "in_progress" ||
+      status === "bidding" ||
+      status === "open");
+
+  const chatHref =
+    conversation?.id != null
+      ? ROUTES.CUSTOMER_CONVERSATION(conversation.id)
+      : ROUTES.CUSTOMER_MESSAGES;
+
+  const payAmount = acceptedBidData?.amount ?? payment?.amount ?? job.budget;
+  const providerFirst =
+    acceptedBidData?.providerName.split(" ")[0] ??
+    job.providerName?.split(" ")[0];
+
+  const handleAccept = (bidId: string, providerName: string) => {
+    setAcceptedBid(bidId);
+    setLocalStatus("booked");
+    toast.success(`You chose ${providerName}`, {
+      description: "Next: pay to confirm the booking.",
+    });
+  };
+
+  const handlePay = () => {
+    setPaymentHeld(true);
+    toast.success("Payment held safely", {
+      description: "Money stays with NearServe until you approve the work.",
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -78,48 +118,87 @@ export default function JobDetailPage({ params }: PageProps) {
           My jobs
         </Link>
 
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <StatusChip status={job.status} />
-              <span className="text-xs text-muted rounded-full bg-white/70 border border-border px-2.5 py-0.5">
-                {job.category}
-              </span>
-            </div>
-            <h1 className="font-fraunces text-3xl md:text-4xl font-semibold text-ink leading-tight max-w-xl tracking-tight">
-              {job.title}
-            </h1>
-            <p className="mt-3 text-muted leading-relaxed max-w-xl">
-              {job.description}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-4 text-sm text-warm">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-brand" />
-                {job.location.address}
-              </span>
-              <span className="font-semibold text-ink tabular-nums">
-                Budget {formatCurrency(job.budget)}
-              </span>
-              <span className="text-muted">Posted {formatDate(job.createdAt)}</span>
-            </div>
-          </div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <StatusChip status={status} />
+          <span className="text-xs text-muted rounded-full bg-white/70 border border-border px-2.5 py-0.5">
+            {job.category}
+          </span>
+        </div>
+        <h1 className="font-fraunces text-3xl md:text-4xl font-semibold text-ink leading-tight max-w-xl tracking-tight">
+          {job.title}
+        </h1>
+        <p className="mt-3 text-muted leading-relaxed max-w-xl">
+          {job.description}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-warm">
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin className="size-3.5 text-brand" />
+            {job.location.address}
+          </span>
+          <span className="font-semibold text-ink tabular-nums">
+            Budget {formatCurrency(job.budget)}
+          </span>
+          <span className="text-muted">Posted {formatDate(job.createdAt)}</span>
         </div>
       </div>
 
+      {showAfterAccept && (
+        <section className="rounded-2xl border border-brand/20 bg-gradient-to-br from-white to-brand/[0.04] p-5 md:p-6 animate-fade-up shadow-[0_8px_32px_rgba(199,10,36,0.08)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand mb-2">
+            Next steps
+          </p>
+          <h2 className="font-fraunces text-xl font-semibold text-ink mb-4">
+            {paymentHeld
+              ? "You’re booked — stay in touch"
+              : "Provider chosen — pay to confirm"}
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={handlePay}
+              disabled={paymentHeld}
+              className={cn(
+                "app-btn flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-left transition-all",
+                paymentHeld
+                  ? "bg-[#e8f5e9] text-[#1b5e20] cursor-default"
+                  : "bg-brand text-white hover:bg-brand-dark shadow-[0_4px_16px_rgba(199,10,36,0.25)]",
+              )}
+            >
+              <span>
+                {paymentHeld
+                  ? "Payment held safely"
+                  : `Pay ${formatCurrency(payAmount)} to confirm`}
+              </span>
+              {!paymentHeld && <ArrowRight className="size-4 shrink-0" />}
+            </button>
+            <Link
+              href={chatHref}
+              className="app-btn flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold bg-ink text-white hover:bg-ink/90"
+            >
+              <span className="inline-flex items-center gap-2">
+                <MessageSquare className="size-4" />
+                Open chat{providerFirst ? ` with ${providerFirst}` : ""}
+              </span>
+              <ArrowRight className="size-4 shrink-0" />
+            </Link>
+          </div>
+        </section>
+      )}
+
       <section className="app-surface rounded-2xl p-5 md:p-6 animate-fade-up hero-delay-1">
         <h2 className="font-fraunces text-lg font-semibold text-ink mb-5">
-          Status timeline
+          Job progress
         </h2>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0">
           {TIMELINE.map((step, i) => {
             const done = i <= statusIndex;
-            const current = i === statusIndex && job.status !== "disputed";
+            const current = i === statusIndex && status !== "disputed";
             return (
               <div key={step} className="flex sm:flex-1 items-center gap-3 sm:gap-0">
                 <div className="flex sm:flex-col items-center gap-2 sm:gap-1.5 sm:flex-1">
                   <div
                     className={cn(
-                      "size-8 rounded-full flex items-center justify-center text-xs font-bold border-2 shrink-0 transition-shadow duration-500",
+                      "size-8 rounded-full flex items-center justify-center text-xs font-bold border-2 shrink-0",
                       done
                         ? "bg-brand border-brand text-white"
                         : "bg-cream border-border text-muted",
@@ -140,7 +219,7 @@ export default function JobDetailPage({ params }: PageProps) {
                 {i < TIMELINE.length - 1 && (
                   <div
                     className={cn(
-                      "hidden sm:block h-0.5 flex-1 mx-1 rounded-full transition-colors duration-500",
+                      "hidden sm:block h-0.5 flex-1 mx-1 rounded-full",
                       i < statusIndex ? "bg-brand" : "bg-border",
                     )}
                   />
@@ -149,9 +228,10 @@ export default function JobDetailPage({ params }: PageProps) {
             );
           })}
         </div>
-        {job.status === "disputed" && (
+        {status === "disputed" && (
           <p className="mt-4 text-sm text-[#8b1a1a] bg-[#f5e6e6] rounded-xl px-4 py-3 border border-[#e8c8c8]/60">
-            This job is in dispute. Escrow is frozen until NearServe reviews the case.
+            This job is under review. Payment stays held until NearServe
+            resolves it.
           </p>
         )}
       </section>
@@ -160,154 +240,41 @@ export default function JobDetailPage({ params }: PageProps) {
         <div className="lg:col-span-3 space-y-6">
           <section className="animate-fade-up hero-delay-2">
             <h2 className="font-fraunces text-lg font-semibold text-ink mb-3">
-              {job.status === "in_progress" ? "Live location" : "Job location"}
+              {status === "in_progress" ? "Live location" : "Job location"}
             </h2>
             <JobMap
               lat={job.location.lat}
               lng={job.location.lng}
               label={job.location.address}
               className="h-[280px]"
-              showProviderEnRoute={job.status === "in_progress"}
+              showProviderEnRoute={status === "in_progress"}
             />
           </section>
 
-          {(job.status === "open" ||
-            job.status === "bidding" ||
-            bids.length > 0) && (
-            <section className="animate-fade-up hero-delay-3">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-fraunces text-lg font-semibold text-ink">
-                  Bids
-                </h2>
-                <span className="text-sm text-muted">
-                  {bids.length} offer{bids.length === 1 ? "" : "s"}
-                </span>
-              </div>
-
-              {bids.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border-warm bg-white/50 px-5 py-10 text-center text-sm text-muted">
-                  No bids yet — providers usually respond within an hour.
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {bids.map((bid, i) => {
-                    const isAccepted =
-                      acceptedBid === bid.id || bid.status === "accepted";
-                    return (
-                      <li
-                        key={bid.id}
-                        className={cn(
-                          "app-surface rounded-2xl p-5 transition-all duration-300 animate-fade-up",
-                          isAccepted
-                            ? "border-brand shadow-[0_8px_28px_rgba(199,10,36,0.14)] ring-1 ring-brand/20"
-                            : "app-surface-hover",
-                        )}
-                        style={{ animationDelay: `${i * 80}ms` }}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3">
-                            <Avatar name={bid.providerName} size="sm" />
-                            <div>
-                              <p className="font-semibold text-ink">
-                                {bid.providerName}
-                              </p>
-                              <div className="mt-1 flex items-center gap-2 text-xs text-muted">
-                                <span className="inline-flex items-center gap-0.5 text-warm">
-                                  <Star className="size-3 fill-current text-amber-500" />
-                                  {bid.providerRating}
-                                </span>
-                                <span>·</span>
-                                <span>{bid.providerJobsCompleted} jobs</span>
-                                <span>·</span>
-                                <span>{bid.eta}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="font-fraunces text-xl font-semibold text-ink tabular-nums">
-                            {formatCurrency(bid.amount)}
-                          </p>
-                        </div>
-                        <p className="mt-3 text-sm text-muted leading-relaxed">
-                          {bid.message}
-                        </p>
-                        {(job.status === "bidding" || job.status === "open") && (
-                          <div className="mt-4 flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setAcceptedBid(bid.id)}
-                              disabled={!!acceptedBid && !isAccepted}
-                              className={cn(
-                                "app-btn rounded-xl px-4 py-2 text-sm font-semibold",
-                                isAccepted
-                                  ? "bg-[#e8f5e9] text-[#1b5e20]"
-                                  : "bg-brand text-white hover:bg-brand-dark disabled:opacity-40 shadow-[0_4px_14px_rgba(199,10,36,0.2)]",
-                              )}
-                            >
-                              {isAccepted ? "Accepted" : "Accept bid"}
-                            </button>
-                          </div>
-                        )}
-                        {isAccepted &&
-                          job.status !== "bidding" &&
-                          job.status !== "open" && (
-                            <p className="mt-3 text-xs font-medium text-brand">
-                              Accepted bid
-                            </p>
-                          )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          )}
+          <section className="animate-fade-up hero-delay-3">
+            <JobBidsPanel
+              bids={bids}
+              acceptedBidId={acceptedBid}
+              canAccept={canAccept}
+              onAccept={handleAccept}
+            />
+          </section>
         </div>
 
         <aside className="lg:col-span-2 space-y-4 animate-fade-up hero-delay-2">
-          <div className="bg-ink text-white rounded-2xl p-5 md:p-6 relative overflow-hidden shadow-[0_12px_40px_rgba(26,18,8,0.18)]">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(199,10,36,0.35)_0%,transparent_55%)]" />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <ShieldCheck className="size-5 text-brand" />
-                <h2 className="font-fraunces text-lg font-semibold">Escrow</h2>
-              </div>
-              {payment ? (
-                <>
-                  <p className="font-fraunces text-3xl font-bold mb-1 tabular-nums">
-                    {formatCurrency(payment.amount)}
-                  </p>
-                  <p className="text-sm text-white/60 mb-4">
-                    {payment.status === "held"
-                      ? "Held safely until you approve the work."
-                      : payment.status === "disputed"
-                        ? "Frozen while dispute is reviewed."
-                        : `Status: ${payment.status}`}
-                  </p>
-                  <StatusChip status={payment.status} kind="payment" />
-                  <p className="mt-4 text-xs text-white/40">
-                    {payment.method} · {formatDateTime(payment.createdAt)}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-white/70 mb-4">
-                    Accept a bid to fund escrow. Money stays protected until
-                    you&apos;re happy.
-                  </p>
-                  <button
-                    type="button"
-                    className="app-btn w-full rounded-xl bg-brand hover:bg-brand-dark text-white text-sm font-semibold py-3"
-                  >
-                    Pay into escrow
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          <SecurePaymentCard
+            amount={payAmount}
+            paid={paymentHeld || !!payment}
+            hasChosenProvider={!!acceptedBid}
+            providerFirstName={providerFirst}
+            onPay={handlePay}
+          />
 
-          {conversation && (
+          <PaymentHowItWorks compact />
+
+          {(conversation || acceptedBid) && (
             <Link
-              href={ROUTES.CUSTOMER_CONVERSATION(conversation.id)}
+              href={chatHref}
               className="app-surface app-surface-hover flex items-center gap-3 rounded-2xl p-4"
             >
               <div className="size-10 rounded-full bg-cream flex items-center justify-center text-brand border border-border">
@@ -315,23 +282,32 @@ export default function JobDetailPage({ params }: PageProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-ink">
-                  Chat with {conversation.participantName}
+                  Chat with{" "}
+                  {conversation?.participantName ??
+                    acceptedBidData?.providerName ??
+                    "provider"}
                 </p>
                 <p className="text-xs text-muted truncate">
-                  {conversation.lastMessage}
+                  {conversation?.lastMessage ??
+                    "Chat opens after you choose a provider."}
                 </p>
               </div>
             </Link>
           )}
 
-          {job.providerName && (
+          {(job.providerName || acceptedBidData) && (
             <div className="app-surface rounded-2xl p-4 flex items-center gap-3">
-              <Avatar name={job.providerName} size="sm" />
+              <Avatar
+                name={acceptedBidData?.providerName ?? job.providerName ?? "P"}
+                size="sm"
+              />
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted mb-0.5">
                   Provider
                 </p>
-                <p className="font-semibold text-ink">{job.providerName}</p>
+                <p className="font-semibold text-ink">
+                  {acceptedBidData?.providerName ?? job.providerName}
+                </p>
               </div>
             </div>
           )}
