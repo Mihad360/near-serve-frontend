@@ -23,13 +23,41 @@ import {
 import { ROUTES } from "@/utils/navigation";
 import Avatar from "@/components/shared/app/Avatar";
 
+import { useGetJobByIdQuery } from "@/redux/api/jobApi";
+import { useSubmitBidMutation } from "@/redux/api/bidApi";
+
 type PageProps = {
   params: Promise<{ jobId: string }>;
 };
 
+const mapBackendFeedJob = (item: any): any => ({
+  id: item._id || item.id,
+  title: item.title || "Untitled Job",
+  description: item.description || "",
+  category: item.category || "service",
+  budget: item.budget || 0,
+  status: item.status || "open",
+  location: {
+    address: item.location?.address || "Service Location",
+    lat: item.location?.coordinates?.[1] || 37.7649,
+    lng: item.location?.coordinates?.[0] || -122.4214,
+  },
+  distanceKm: 2.5,
+  customerName: item.customerId?.name || "Customer",
+  photos: item.photos || [],
+  createdAt: item.createdAt || new Date().toISOString(),
+  updatedAt: item.updatedAt || new Date().toISOString(),
+});
+
 export default function ProviderJobDetailPage({ params }: PageProps) {
   const { jobId } = use(params);
-  const job = getFeedJobById(jobId);
+
+  const { data: jobRes } = useGetJobByIdQuery(jobId);
+  const [submitBidMutation, { isLoading: isSubmitting }] = useSubmitBidMutation();
+
+  const rawJob = jobRes?.data || jobRes;
+  const job = rawJob?._id ? mapBackendFeedJob(rawJob) : getFeedJobById(jobId);
+
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [timeline, setTimeline] = useState("Today, 2–4pm");
@@ -46,12 +74,23 @@ export default function ProviderJobDetailPage({ params }: PageProps) {
     );
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
-    toast.success("Bid placed", {
-      description: "You'll be notified if the customer accepts.",
-    });
+    try {
+      await submitBidMutation({
+        jobId,
+        price: Number(amount),
+        etaMinutes: 60,
+        message,
+      }).unwrap();
+
+      setSubmitted(true);
+      toast.success("Bid placed successfully!", {
+        description: "You'll be notified if the customer accepts.",
+      });
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to submit bid");
+    }
   }
 
   return (

@@ -13,6 +13,9 @@ import { ROUTES } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/shared/app/PageHeader";
 
+import { useEditProfileMutation } from "@/redux/api/userApi";
+import { toast } from "sonner";
+
 function OnboardingContent() {
   const searchParams = useSearchParams();
   const pendingQ = searchParams.get("pending");
@@ -26,16 +29,35 @@ function OnboardingContent() {
   const [categories, setCategories] = useState<string[]>(profile.categories);
   const [saved, setSaved] = useState(false);
 
+  const [editProfile, { isLoading: isSaving }] = useEditProfileMutation();
+
   function toggleCategory(c: string) {
     setCategories((prev) =>
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
     );
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    try {
+      const formData = new FormData();
+      formData.append(
+        "data",
+        JSON.stringify({
+          name,
+          phone,
+          bio,
+          categories,
+        }),
+      );
+
+      await editProfile(formData).unwrap();
+      setSaved(true);
+      toast.success("Profile saved successfully!");
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to update profile");
+    }
   }
 
   return (

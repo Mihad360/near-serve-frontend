@@ -3,12 +3,28 @@ import { buildQueryParams } from "./queryParams";
 
 const analyticsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
+    getPublicAnalytics: build.query({
+      query: (args) => {
+        const params = buildQueryParams(args);
+        return { url: "/analytics/public", method: "GET", params };
+      },
+      providesTags: ["analytics"],
+    }),
+
+    getCustomerAnalytics: build.query({
+      query: (args) => {
+        const params = buildQueryParams(args);
+        return { url: "/analytics/customer", method: "GET", params };
+      },
+      providesTags: ["analytics", "job", "payment"],
+    }),
+
     getProviderAnalytics: build.query({
       query: (args) => {
         const params = buildQueryParams(args);
         return { url: "/analytics/provider", method: "GET", params };
       },
-      providesTags: ["analytics"],
+      providesTags: ["analytics", "job", "payment", "bid"],
     }),
 
     getAdminAnalytics: build.query({
@@ -16,12 +32,14 @@ const analyticsApi = baseApi.injectEndpoints({
         const params = buildQueryParams(args);
         return { url: "/analytics/admin", method: "GET", params };
       },
-      providesTags: ["analytics"],
+      providesTags: ["analytics", "job", "payment", "user", "provider"],
     }),
   }),
 });
 
 export const {
+  useGetPublicAnalyticsQuery,
+  useGetCustomerAnalyticsQuery,
   useGetProviderAnalyticsQuery,
   useGetAdminAnalyticsQuery,
 } = analyticsApi;

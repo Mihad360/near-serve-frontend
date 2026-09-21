@@ -117,7 +117,7 @@ export default function CustomerHeroVisual() {
       >
         <div className="flex items-center gap-2 bg-ink text-white rounded-full px-4 py-2 text-xs font-semibold shadow-lg">
           <span>🔒</span>
-          <span>৳8,500 held in escrow</span>
+          <span>৳8,500 safely protected</span>
         </div>
       </div>
 

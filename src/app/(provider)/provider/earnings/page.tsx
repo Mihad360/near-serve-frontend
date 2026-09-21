@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Wallet, Landmark } from "lucide-react";
+import { Wallet, Landmark, Clock, ArrowRight, DollarSign, ShieldCheck } from "lucide-react";
 import { mockEarnings, PROVIDER_PROFILE, getStripeAccountStatus } from "@/data/providerMock";
 import { EarningStatusChip } from "@/components/provider/ProviderChips";
 import UseTable from "@/components/ui/UseTable";
@@ -24,112 +24,124 @@ export default function ProviderEarningsPage() {
     .reduce((sum, e) => sum + e.amount, 0);
 
   return (
-    <div>
+    <div className="space-y-8">
       <PageHeader
-        eyebrow="Money in"
-        title="Earnings"
-        description="See what you’ve earned. Money moves to your bank after the customer approves the job."
+        eyebrow="Financial Overview"
+        title="My earnings"
+        description="Track your completed payouts and pre-funded job earnings."
         action={
           <Link
             href={ROUTES.PROVIDER_PAYOUTS}
-            className="app-btn inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:border-brand shrink-0"
+            className="inline-flex items-center gap-2 rounded-2xl bg-stone-100 hover:bg-stone-200 px-5 py-3 text-xs font-bold text-ink transition-all shadow-xs shrink-0"
           >
             <Landmark className="size-4 text-brand" />
-            Payout setup
+            <span>Payout Settings</span>
           </Link>
         }
       />
 
       {!ready && (
-        <div className="mb-6 rounded-2xl border border-[#f0d9a8] bg-[#fff8eb] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-up">
+        <div className="rounded-3xl bg-amber-50 border border-amber-200/80 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-up shadow-xs">
           <div>
-            <p className="font-semibold text-ink text-sm">
-              Connect Stripe to receive payouts
+            <p className="font-bold text-ink text-sm">
+              Connect Your Bank or Mobile Wallet for Payouts
             </p>
-            <p className="text-xs text-muted mt-0.5">
-              Without a Stripe Express account, approved jobs can’t reach your bank.
+            <p className="text-xs text-muted mt-0.5 font-medium">
+              Link your payout account so funds transfer directly when jobs are approved.
             </p>
           </div>
           <Link
             href={`${ROUTES.PROVIDER_PAYOUTS}?stripe=setup`}
-            className="app-btn rounded-xl bg-brand text-white text-xs font-semibold px-4 py-2.5 hover:bg-brand-dark shrink-0"
+            className="rounded-2xl bg-brand text-white text-xs font-bold px-5 py-3 hover:bg-brand-dark transition-all shadow-xs shrink-0"
           >
-            Set up payouts
+            Configure Payouts →
           </Link>
         </div>
       )}
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-8 animate-fade-up hero-delay-1">
-        <div className="rounded-2xl bg-ink text-white p-5 md:p-6 relative overflow-hidden shadow-[0_12px_40px_rgba(26,18,8,0.18)]">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(199,10,36,0.3)_0%,transparent_60%)]" />
+      {/* Summary Cards */}
+      <div className="grid sm:grid-cols-2 gap-4 animate-fade-up hero-delay-1">
+        <div className="rounded-3xl bg-ink text-white p-6 relative overflow-hidden shadow-lg flex flex-col justify-between">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(199,10,36,0.45)_0%,transparent_60%)]" />
           <div className="relative z-10">
-            <div className="flex items-center gap-2 text-white/70 text-xs uppercase tracking-wider mb-2">
-              <Wallet className="size-3.5" />
-              Paid to your bank
+            <div className="flex items-center gap-2 text-white/80 text-xs font-bold uppercase tracking-wider mb-2">
+              <Wallet className="size-3.5 text-emerald-400" />
+              <span>Total Paid Out</span>
             </div>
             <p className="font-fraunces text-3xl md:text-4xl font-bold tabular-nums">
               {formatCurrency(paid)}
             </p>
-            <p className="text-xs text-white/45 mt-2">
-              Destination: {PROVIDER_PROFILE.payoutMethod}
+            <p className="text-xs text-white/60 mt-2 font-medium">
+              Transferred to: {PROVIDER_PROFILE.payoutMethod}
             </p>
           </div>
         </div>
-        <div className="app-surface rounded-2xl p-5 md:p-6">
-          <p className="text-xs uppercase tracking-wider text-muted mb-2">
-            Waiting for customer approval
-          </p>
-          <p className="font-fraunces text-3xl md:text-4xl font-bold text-ink tabular-nums">
-            {formatCurrency(waiting)}
-          </p>
-          <p className="text-xs text-muted mt-2">
-            Held safely until the customer says the job is done
+
+        <div className="bg-stone-100 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-wider mb-2">
+              <Clock className="size-3.5 text-amber-600" />
+              <span>Pending Customer Approval</span>
+            </div>
+            <p className="font-fraunces text-3xl md:text-4xl font-bold text-ink tabular-nums">
+              {formatCurrency(waiting)}
+            </p>
+          </div>
+          <p className="text-xs text-muted font-medium mt-2">
+            Protected in safe hold. Releases automatically once customer approves completion.
           </p>
         </div>
       </div>
 
-      <div className="app-surface rounded-2xl overflow-hidden animate-fade-up hero-delay-2">
-        <div className="px-5 py-4 border-b border-border">
-          <h2 className="font-fraunces text-lg font-semibold text-ink">
-            Earnings list
+      {/* Earnings Table */}
+      <div className="bg-stone-100 rounded-3xl p-6 shadow-xs animate-fade-up hero-delay-2">
+        <div className="mb-4">
+          <h2 className="font-fraunces text-xl font-bold text-ink">
+            Payout History
           </h2>
+          <p className="text-xs text-muted mt-0.5">
+            Click any row to inspect active job progress or chat with the customer.
+          </p>
         </div>
-        <UseTable<Earning>
-          data={mockEarnings}
-          emptyText="No earnings yet — win a bid and complete a job."
-          hover
-          striped
-          onRowClick={(row) => router.push(ROUTES.PROVIDER_ACTIVE(row.jobId))}
-          columns={[
-            {
-              key: "jobTitle",
-              title: "Job",
-              render: (row) => (
-                <div>
-                  <p className="font-medium text-ink">{row.jobTitle}</p>
-                  <p className="text-xs text-muted mt-0.5">
-                    {row.customerName} · {formatDate(row.completedAt)}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "status",
-              title: "Status",
-              render: (row) => <EarningStatusChip status={row.status} />,
-            },
-            {
-              key: "amount",
-              title: "Amount",
-              align: "right",
-              render: (row) => (
-                <span className="font-fraunces font-semibold text-ink tabular-nums">
-                  {formatCurrency(row.amount)}
-                </span>
-              ),
-            },
-          ]}
-        />
+
+        <div className="bg-white rounded-2xl overflow-hidden shadow-xs">
+          <UseTable<Earning>
+            data={mockEarnings}
+            emptyText="No completed earnings yet. Bid on available jobs to get started."
+            hover
+            striped
+            onRowClick={(row) => router.push(ROUTES.PROVIDER_ACTIVE(row.jobId))}
+            columns={[
+              {
+                key: "jobTitle",
+                title: "Job",
+                render: (row) => (
+                  <div>
+                    <p className="font-bold text-ink text-sm">{row.jobTitle}</p>
+                    <p className="text-xs text-muted mt-0.5">
+                      {row.customerName} · {formatDate(row.completedAt)}
+                    </p>
+                  </div>
+                ),
+              },
+              {
+                key: "status",
+                title: "Status",
+                render: (row) => <EarningStatusChip status={row.status} />,
+              },
+              {
+                key: "amount",
+                title: "Earned",
+                align: "right",
+                render: (row) => (
+                  <span className="font-fraunces font-bold text-ink text-base tabular-nums">
+                    {formatCurrency(row.amount)}
+                  </span>
+                ),
+              },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );

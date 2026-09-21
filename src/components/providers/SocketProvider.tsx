@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { getSocket, resetSocket } from "@/lib/socket";
+import Cookies from "js-cookie";
+import { AUTH_CONFIG } from "@/lib/auth/auth.config";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -31,15 +33,18 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("disconnect", handleDisconnect);
     socket.on("connect_error", handleConnectError);
 
-    if (!socket.connected) {
-      socket.connect();
+    const token = typeof window !== "undefined" ? Cookies.get(AUTH_CONFIG.TOKEN_COOKIE_KEY) : null;
+    if (token) {
+      socket.auth = { token };
+      if (!socket.connected) {
+        socket.connect();
+      }
     }
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("connect_error", handleConnectError);
-      resetSocket();
     };
   }, []);
 

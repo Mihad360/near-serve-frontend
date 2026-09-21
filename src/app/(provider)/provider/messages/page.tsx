@@ -1,82 +1,325 @@
+"use client";
+
+import { Suspense, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
-import { mockProviderConversations } from "@/data/providerMock";
-import { formatRelativeTime } from "@/lib/customer/format";
+import { 
+  MessageCircle, 
+  Search, 
+  Clock, 
+  Send, 
+  CheckCheck, 
+  ArrowRight, 
+  MapPin, 
+  ShieldCheck, 
+  ArrowLeft 
+} from "lucide-react";
+import { mockProviderConversations, getProviderConversationById } from "@/data/providerMock";
+import { formatDateTime, formatRelativeTime } from "@/lib/customer/format";
 import { ROUTES } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/shared/app/PageHeader";
 import Avatar from "@/components/shared/app/Avatar";
 import EmptyState from "@/components/shared/app/EmptyState";
 
-export default function ProviderMessagesPage() {
+function ProviderMessagesSplitView() {
+  const searchParams = useSearchParams();
+  const initialId = searchParams.get("id") || mockProviderConversations[0]?.id || null;
+
+  const [selectedId, setSelectedId] = useState<string | null>(initialId);
+  const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState("");
+  const [extraMessages, setExtraMessages] = useState<Record<string, Array<{ id: string; text: string; createdAt: string }>>>({});
+
   const sorted = [...mockProviderConversations].sort(
     (a, b) =>
       new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime(),
   );
 
+  const filtered = sorted.filter(
+    (c) =>
+      c.participantName.toLowerCase().includes(search.toLowerCase()) ||
+      c.jobTitle.toLowerCase().includes(search.toLowerCase()) ||
+      c.lastMessage.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const activeConversation = selectedId
+    ? getProviderConversationById(selectedId) || mockProviderConversations.find((c) => c.id === selectedId) || null
+    : null;
+
+  const currentExtra = selectedId ? extraMessages[selectedId] || [] : [];
+  const currentMessages = activeConversation
+    ? [
+        ...activeConversation.messages,
+        ...currentExtra.map((m) => ({
+          id: m.id,
+          conversationId: activeConversation.id,
+          senderId: "prov-1",
+          senderRole: "provider" as const,
+          text: m.text,
+          createdAt: m.createdAt,
+        })),
+      ]
+    : [];
+
+  const handleSend = (e: FormEvent) => {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text || !selectedId) return;
+
+    setExtraMessages((prev) => ({
+      ...prev,
+      [selectedId]: [
+        ...(prev[selectedId] || []),
+        {
+          id: `local-${Date.now()}`,
+          text,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    }));
+    setDraft("");
+  };
+
+  const getJobHref = (jobId: string) =>
+    jobId.startsWith("job-a") || jobId === "job-a1" || jobId === "job-a2"
+      ? ROUTES.PROVIDER_ACTIVE(jobId)
+      : ROUTES.PROVIDER_JOB(jobId);
+
   return (
-    <div>
+    <div className="space-y-6 w-full">
       <PageHeader
-        eyebrow="Inbox"
-        title="Messages"
-        description="Chat with customers about your jobs and bids."
+        eyebrow="Direct Messages"
+        title="Customer chats"
+        description="Communicate directly with clients regarding active quotes, schedules, and job requirements."
       />
 
-      {sorted.length === 0 ? (
-        <EmptyState
-          icon={<MessageCircle className="size-6" />}
-          title="No conversations yet"
-          description="Accepted bids open a chat with the customer here."
-        />
-      ) : (
-        <ul className="space-y-2.5">
-          {sorted.map((conv, i) => (
-            <li key={conv.id} className="animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-              <Link
-                href={ROUTES.PROVIDER_CONVERSATION(conv.id)}
-                className={cn(
-                  "app-surface app-surface-hover flex items-start gap-4 rounded-2xl p-4 md:p-5",
-                  conv.unreadCount > 0 && "border-l-[3px] border-l-brand",
-                )}
-              >
-                <Avatar name={conv.participantName} pulse={conv.unreadCount > 0} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-ink">
-                        {conv.participantName}
-                      </p>
-                      <p className="text-xs text-muted mt-0.5 truncate">
-                        {conv.jobTitle}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className="text-[11px] text-muted tabular-nums">
-                        {formatRelativeTime(conv.lastMessageAt)}
-                      </span>
-                      {conv.unreadCount > 0 && (
-                        <span className="size-5 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shadow-[0_2px_8px_rgba(199,10,36,0.35)]">
-                          {conv.unreadCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <p
+      {/* Main Split-Pane Container */}
+      <div className="bg-stone-100 rounded-3xl p-3 md:p-4 shadow-xs flex flex-col md:flex-row gap-3 h-[calc(100vh-14rem)] min-h-[580px] max-h-[850px] overflow-hidden">
+        {/* Left Pane: Conversation List */}
+        <div className={cn(
+          "w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col bg-white rounded-2xl overflow-hidden shadow-xs border border-stone-200/60",
+          selectedId && "hidden md:flex"
+        )}>
+          {/* Search Header */}
+          <div className="p-3.5 border-b border-stone-100 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="font-fraunces text-base font-bold text-ink">Client Chats</span>
+              <span className="text-[11px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full">
+                {filtered.length} chats
+              </span>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-stone-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search clients or jobs..."
+                className="w-full rounded-xl bg-stone-50 pl-9 pr-3 py-2 text-xs font-medium text-ink placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand/20 border-none"
+              />
+            </div>
+          </div>
+
+          {/* List Items */}
+          <div className="flex-1 overflow-y-auto divide-y divide-stone-100 scrollbar-none">
+            {filtered.length === 0 ? (
+              <div className="p-8 text-center text-xs text-muted">
+                No chats found.
+              </div>
+            ) : (
+              filtered.map((conv) => {
+                const isSelected = selectedId === conv.id;
+                const isUnread = conv.unreadCount > 0;
+                return (
+                  <button
+                    key={conv.id}
+                    type="button"
+                    onClick={() => setSelectedId(conv.id)}
                     className={cn(
-                      "mt-2 text-sm truncate",
-                      conv.unreadCount > 0
-                        ? "text-ink font-medium"
-                        : "text-muted",
+                      "w-full text-left p-3.5 flex items-start gap-3 transition-colors duration-150 relative group",
+                      isSelected
+                        ? "bg-brand/5 border-l-4 border-l-brand"
+                        : "hover:bg-stone-50",
                     )}
                   >
-                    {conv.lastMessage}
-                  </p>
+                    <div className="relative shrink-0">
+                      <Avatar name={conv.participantName} size="sm" pulse={isUnread} />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className={cn("text-xs truncate", isSelected ? "font-bold text-brand" : "font-bold text-ink")}>
+                          {conv.participantName}
+                        </span>
+                        <span className="text-[10px] text-stone-400 tabular-nums shrink-0">
+                          {formatRelativeTime(conv.lastMessageAt)}
+                        </span>
+                      </div>
+
+                      <div className="text-[10px] text-muted font-medium truncate mb-1 bg-stone-100/70 px-1.5 py-0.2 rounded inline-block max-w-[170px]">
+                        {conv.jobTitle}
+                      </div>
+
+                      <p className={cn("text-xs truncate", isUnread ? "text-ink font-semibold" : "text-muted")}>
+                        {conv.lastMessage}
+                      </p>
+                    </div>
+
+                    {isUnread && (
+                      <span className="size-2 rounded-full bg-brand shrink-0 self-center" />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Right Pane: Active Chat Area */}
+        <div className={cn(
+          "flex-1 flex flex-col bg-white rounded-2xl overflow-hidden shadow-xs border border-stone-200/60",
+          !selectedId && "hidden md:flex"
+        )}>
+          {activeConversation ? (
+            <>
+              {/* Chat Top Header */}
+              <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(null)}
+                    className="md:hidden p-1.5 rounded-lg hover:bg-stone-200 text-stone-600"
+                    aria-label="Back to conversation list"
+                  >
+                    <ArrowLeft className="size-4" />
+                  </button>
+
+                  <div className="relative shrink-0">
+                    <Avatar name={activeConversation.participantName} size="sm" />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-bold text-ink text-sm leading-tight">
+                        {activeConversation.participantName}
+                      </h2>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.2 rounded-full">
+                        Client
+                      </span>
+                    </div>
+                    <Link
+                      href={getJobHref(activeConversation.jobId)}
+                      className="text-[11px] text-muted hover:text-brand font-medium transition-colors line-clamp-1 inline-block"
+                    >
+                      Job: {activeConversation.jobTitle}
+                    </Link>
+                  </div>
                 </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+
+                <Link
+                  href={getJobHref(activeConversation.jobId)}
+                  className="hidden sm:inline-flex items-center gap-1 bg-white text-ink text-xs font-bold px-3 py-1.5 rounded-xl border border-stone-200 shadow-xs hover:bg-stone-50 transition-all"
+                >
+                  <span>View Job</span>
+                  <ArrowRight className="size-3 text-muted" />
+                </Link>
+              </div>
+
+              {/* Chat Messages Body */}
+              <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 bg-[#fdfcf9] scrollbar-none">
+                <div className="text-center my-2">
+                  <span className="text-[11px] font-medium text-stone-400 bg-stone-100 px-3 py-1 rounded-full">
+                    Direct communication with client
+                  </span>
+                </div>
+
+                {currentMessages.map((msg) => {
+                  const mine = msg.senderRole === "provider";
+                  return (
+                    <div
+                      key={msg.id}
+                      className={cn(
+                        "flex items-end gap-2",
+                        mine ? "justify-end" : "justify-start",
+                      )}
+                    >
+                      {!mine && (
+                        <Avatar name={activeConversation.participantName} size="sm" />
+                      )}
+
+                      <div
+                        className={cn(
+                          "max-w-[75%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs",
+                          mine
+                            ? "bg-brand text-white rounded-br-xs shadow-brand/10"
+                            : "bg-white text-ink rounded-bl-xs border border-stone-200/70",
+                        )}
+                      >
+                        <p className="font-medium">{msg.text}</p>
+                        <div
+                          className={cn(
+                            "mt-1 flex items-center justify-end gap-1 text-[10px]",
+                            mine ? "text-white/75" : "text-stone-400",
+                          )}
+                        >
+                          <span>{formatDateTime(msg.createdAt)}</span>
+                          {mine && <CheckCheck className="size-3 text-white/90" />}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chat Input Bar */}
+              <form
+                onSubmit={handleSend}
+                className="p-3 border-t border-stone-100 bg-white flex items-center gap-2"
+              >
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={`Reply to ${activeConversation.participantName}…`}
+                  className="flex-1 rounded-xl bg-stone-100/80 px-4 py-2.5 text-xs sm:text-sm text-ink placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand/20 font-medium"
+                />
+                <button
+                  type="submit"
+                  aria-label="Send message"
+                  className="size-10 rounded-xl bg-brand hover:bg-brand-dark text-white flex items-center justify-center shrink-0 shadow-md shadow-brand/20 transition-all hover:scale-105 cursor-pointer"
+                >
+                  <Send className="size-4" />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted">
+              <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center text-brand mb-3 shadow-xs">
+                <MessageCircle className="size-7" />
+              </div>
+              <h3 className="font-fraunces text-lg font-bold text-ink mb-1">
+                Select a conversation
+              </h3>
+              <p className="text-xs text-muted max-w-xs">
+                Choose a customer chat from the list to reply to inquiries or update them on job progress.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function ProviderMessagesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-20 text-center text-sm text-muted">Loading messages…</div>
+      }
+    >
+      <ProviderMessagesSplitView />
+    </Suspense>
   );
 }

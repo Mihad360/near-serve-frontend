@@ -11,6 +11,8 @@ import {
   Menu,
   X,
   LogOut,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -40,7 +42,6 @@ export default function CustomerShell({ children }: CustomerShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const displayName = user?.name ?? "Maya Chen";
 
-  // Design preview: entering the customer app implies customer session
   useEffect(() => {
     if (role !== "customer") setDemoRole("customer");
   }, [role, setDemoRole]);
@@ -70,21 +71,27 @@ export default function CustomerShell({ children }: CustomerShellProps) {
         onClick={onClick}
         data-active={active}
         className={cn(
-          "app-nav-link flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium",
+          "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300",
           active
-            ? "bg-brand text-white shadow-[0_6px_20px_rgba(199,10,36,0.28)]"
-            : "text-warm hover:bg-white/75 hover:text-ink",
+            ? "bg-brand text-white shadow-md shadow-brand/20 translate-x-1"
+            : "text-warm hover:bg-stone-200/60 hover:text-ink hover:translate-x-1",
         )}
       >
-        <Icon className="size-4 shrink-0" />
-        {item.name}
+        <Icon className={cn("size-4 shrink-0 transition-transform", active ? "scale-110" : "text-muted")} />
+        <span className="flex-1">{item.name}</span>
+        {item.name === "Messages" && (
+          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full", active ? "bg-white/25 text-white" : "bg-stone-200 text-ink")}>
+            2
+          </span>
+        )}
       </Link>
     );
   };
 
   return (
-    <div className="min-h-screen app-shell-bg flex">
-      <aside className="hidden lg:flex w-[260px] shrink-0 flex-col border-r border-border/80 app-sidebar-bg sticky top-0 h-screen">
+    <div className="min-h-screen bg-[#faf7f2] flex">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-[270px] shrink-0 flex-col bg-stone-100/90 border-r border-stone-200/70 sticky top-0 h-screen shadow-sm">
         <div className="p-6 pb-5">
           <Link
             href={ROUTES.HOME}
@@ -93,53 +100,60 @@ export default function CustomerShell({ children }: CustomerShellProps) {
             <span className="text-ink">{NAVBAR_CONFIG.LOGO_TEXT}</span>
             <span className="text-brand">{NAVBAR_CONFIG.LOGO_HIGHLIGHT}</span>
           </Link>
-          <p className="mt-1.5 text-[11px] uppercase tracking-[0.14em] text-muted font-medium">
-            Customer
-          </p>
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-muted font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-soft" />
+            Customer Workspace
+          </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
           {CUSTOMER_NAV.map((item) => navLink(item))}
         </nav>
 
-        <div className="p-4 space-y-3 border-t border-border/80">
+        {/* Action button & User Profile */}
+        <div className="p-4 space-y-3 border-t border-stone-200/70">
           <Link
             href={ROUTES.CUSTOMER_POST_JOB}
-            className="app-btn flex items-center justify-center gap-2 w-full rounded-xl bg-brand hover:bg-brand-dark text-white text-sm font-semibold py-3 shadow-[0_6px_20px_rgba(199,10,36,0.22)]"
+            className="flex items-center justify-center gap-2 w-full rounded-2xl bg-brand hover:bg-brand-dark text-white text-sm font-bold py-3.5 shadow-md shadow-brand/25 transition-all duration-300 hover:scale-[1.02]"
           >
             <Plus className="size-4" />
-            New job
+            <span>Post a New Job</span>
           </Link>
+
           <Link
             href={ROUTES.CUSTOMER_PROFILE}
             className={cn(
-              "app-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium",
+              "flex items-center gap-3 rounded-2xl p-3 text-sm font-semibold transition-all duration-300",
               isActive(ROUTES.CUSTOMER_PROFILE)
-                ? "bg-white text-ink border border-border shadow-sm"
-                : "text-warm hover:bg-white/75 hover:text-ink",
+                ? "bg-white text-ink shadow-sm ring-1 ring-stone-200"
+                : "bg-white/60 hover:bg-white text-ink hover:shadow-sm",
             )}
           >
             <Avatar name={displayName} size="sm" />
-            <span className="flex flex-col items-start leading-tight min-w-0">
-              <span className="truncate max-w-[140px]">{displayName}</span>
-              <span className="text-[10px] text-muted font-normal normal-case tracking-normal">
-                Profile & settings
+            <div className="flex flex-col items-start leading-tight min-w-0 flex-1">
+              <span className="truncate font-bold text-ink max-w-[130px]">{displayName}</span>
+              <span className="text-[11px] text-muted font-normal">
+                Account & Settings
               </span>
-            </span>
+            </div>
+            <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
           </Link>
+
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted hover:bg-white/75 hover:text-[#8b1a1a] transition-colors"
+            className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-muted hover:bg-red-50 hover:text-red-700 transition-colors"
           >
-            <LogOut className="size-4" />
+            <LogOut className="size-3.5" />
             Log out
           </button>
         </div>
       </aside>
 
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-border/80 px-4 py-3 flex items-center justify-between">
+        {/* Mobile Header */}
+        <header className="lg:hidden sticky top-0 z-40 bg-stone-100/95 backdrop-blur-md border-b border-stone-200/70 px-4 py-3 flex items-center justify-between">
           <Link
             href={ROUTES.HOME}
             className="font-fraunces text-xl font-bold tracking-tight"
@@ -150,39 +164,36 @@ export default function CustomerShell({ children }: CustomerShellProps) {
           <div className="flex items-center gap-2">
             <Link
               href={ROUTES.CUSTOMER_POST_JOB}
-              className="app-btn inline-flex items-center gap-1.5 rounded-full bg-brand text-white text-xs font-semibold px-3.5 py-2 shadow-[0_4px_14px_rgba(199,10,36,0.25)]"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand text-white text-xs font-bold px-3.5 py-2 shadow-sm"
             >
               <Plus className="size-3.5" />
-              New job
+              New Job
             </Link>
             <button
               type="button"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen((v) => !v)}
-              className="p-2 rounded-xl border border-border bg-white/90 text-ink shadow-sm"
+              className="p-2 rounded-xl bg-white text-ink shadow-sm border border-stone-200"
             >
-              {mobileOpen ? (
-                <X className="size-5" />
-              ) : (
-                <Menu className="size-5" />
-              )}
+              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
           </div>
         </header>
 
+        {/* Mobile Drawer */}
         {mobileOpen && (
           <div
             className="lg:hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]"
             onClick={() => setMobileOpen(false)}
           >
             <div
-              className="absolute right-0 top-0 h-full w-[280px] app-shell-bg border-l border-border p-4 flex flex-col shadow-2xl animate-[slide-in-right_0.45s_cubic-bezier(0.22,1,0.36,1)]"
+              className="absolute right-0 top-0 h-full w-[280px] bg-stone-100 p-5 flex flex-col shadow-2xl animate-[slide-in-right_0.35s_ease-out]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-200">
                 <div className="flex items-center gap-2.5">
                   <Avatar name={displayName} size="sm" />
-                  <span className="text-sm font-semibold text-ink">
+                  <span className="text-sm font-bold text-ink truncate max-w-[150px]">
                     {displayName}
                   </span>
                 </div>
@@ -190,12 +201,13 @@ export default function CustomerShell({ children }: CustomerShellProps) {
                   type="button"
                   aria-label="Close"
                   onClick={() => setMobileOpen(false)}
-                  className="p-2 rounded-lg hover:bg-white"
+                  className="p-1.5 rounded-lg hover:bg-stone-200 text-muted"
                 >
                   <X className="size-5" />
                 </button>
               </div>
-              <nav className="space-y-1 flex-1">
+
+              <nav className="space-y-1.5 flex-1 overflow-y-auto">
                 {CUSTOMER_NAV.map((item) =>
                   navLink(item, () => setMobileOpen(false)),
                 )}
@@ -203,20 +215,21 @@ export default function CustomerShell({ children }: CustomerShellProps) {
                   href={ROUTES.CUSTOMER_PROFILE}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "app-nav-link flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium",
+                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all",
                     isActive(ROUTES.CUSTOMER_PROFILE)
                       ? "bg-brand text-white"
-                      : "text-warm hover:bg-white/70",
+                      : "text-warm hover:bg-stone-200/60",
                   )}
                 >
                   <User className="size-4" />
                   Profile
                 </Link>
               </nav>
+
               <button
                 type="button"
                 onClick={handleLogout}
-                className="mt-4 flex items-center gap-2 text-sm font-medium text-[#8b1a1a]"
+                className="mt-4 flex items-center gap-2 text-sm font-bold text-red-700 p-2 rounded-xl hover:bg-red-50"
               >
                 <LogOut className="size-4" />
                 Log out
@@ -225,7 +238,7 @@ export default function CustomerShell({ children }: CustomerShellProps) {
           </div>
         )}
 
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10 max-w-5xl w-full mx-auto">
+        <main className="flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10 w-full">
           {children}
         </main>
       </div>

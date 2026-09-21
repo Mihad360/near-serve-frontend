@@ -55,7 +55,7 @@ export default function AuthShell({
             {[
               { val: "4,800+", label: "Jobs done" },
               { val: "4.9★", label: "Avg rating" },
-              { val: "100%", label: "Escrow safe" },
+              { val: "100%", label: "Safe payment" },
             ].map((s) => (
               <div key={s.label}>
                 <div className="font-fraunces text-xl font-bold">{s.val}</div>
