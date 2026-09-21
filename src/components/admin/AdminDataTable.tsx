@@ -47,40 +47,46 @@ export default function AdminDataTable<
   onRowClick,
 }: AdminDataTableProps<T>) {
   return (
-    <div className="app-surface rounded-2xl overflow-hidden animate-fade-up">
-      <div className="px-5 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="bg-stone-100 rounded-3xl p-6 shadow-xs animate-fade-up space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
-          <h2 className="font-fraunces text-lg font-semibold text-ink">
+          <h2 className="font-fraunces text-xl font-bold text-ink">
             {title}
           </h2>
           {description && (
             <p className="text-xs text-muted mt-0.5">{description}</p>
           )}
           {typeof totalItems === "number" && (
-            <p className="text-[11px] text-muted mt-1">
-              {totalItems} total
-            </p>
+            <span className="inline-block text-[11px] font-bold text-muted bg-stone-200/70 px-2 py-0.5 rounded-full mt-1.5">
+              {totalItems} records found
+            </span>
           )}
         </div>
         {toolbar}
       </div>
-      <UseTable
-        columns={columns}
-        data={data}
-        loading={loading}
-        emptyText={emptyText}
-        hover
-        striped
-        onRowClick={onRowClick}
-      />
-      <div className="px-4 pb-4">
-        <UsePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          showFirstLast
+
+      <div className="bg-white rounded-2xl overflow-hidden shadow-xs">
+        <UseTable
+          columns={columns}
+          data={data}
+          loading={loading}
+          emptyText={emptyText}
+          hover
+          striped
+          onRowClick={onRowClick}
         />
       </div>
+
+      {totalPages > 1 && (
+        <div className="pt-2">
+          <UsePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            showFirstLast
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -26,10 +26,14 @@ import {
   formatDate,
   JOB_STATUS_LABELS,
 } from "@/lib/customer/format";
-import type { JobStatus } from "@/types/job";
+import type { Job, JobStatus } from "@/types/job";
 import { ROUTES } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import Avatar from "@/components/shared/app/Avatar";
+
+import { useGetJobByIdQuery } from "@/redux/api/jobApi";
+import { useGetBidsForJobQuery, useAcceptBidMutation } from "@/redux/api/bidApi";
+import { useCreatePaymentIntentMutation } from "@/redux/api/paymentApi";
 
 const TIMELINE: JobStatus[] = [
   "open",
@@ -43,12 +47,57 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+const mapBackendJobDetail = (item: any): Job => ({
+  id: item._id || item.id,
+  title: item.title || "Untitled Job",
+  description: item.description || "",
+  category: item.category || "service",
+  budget: item.budget || 0,
+  status: item.status || "open",
+  location: {
+    address: item.location?.address || "Service Location",
+    lat: item.location?.coordinates?.[1] || 37.7649,
+    lng: item.location?.coordinates?.[0] || -122.4214,
+  },
+  photos: item.photos || [],
+  createdAt: item.createdAt || new Date().toISOString(),
+  updatedAt: item.updatedAt || new Date().toISOString(),
+  providerName: item.selectedProvider?.userId?.name || item.providerName,
+  providerId: item.selectedProvider?._id || item.selectedProvider,
+  acceptedBidId: item.selectedBid?._id || item.selectedBid,
+  bidCount: item.bidCount || 0,
+});
+
+const mapBackendBid = (b: any): any => ({
+  id: b._id || b.id,
+  jobId: b.jobId,
+  providerId: b.providerId?._id || b.providerId,
+  providerName: b.providerId?.userId?.name || "Provider",
+  providerRating: b.providerId?.trustScore ? b.providerId.trustScore / 20 : 5,
+  providerJobsCompleted: b.providerId?.totalJobs || 0,
+  amount: b.price || 0,
+  message: b.message || "",
+  eta: b.etaMinutes ? `${b.etaMinutes} mins` : "1 hour",
+  createdAt: b.createdAt,
+  status: b.status,
+});
+
 export default function JobDetailPage({ params }: PageProps) {
   const { id } = use(params);
-  const job = getJobById(id);
-  const bids = getBidsForJob(id);
+
+  const { data: liveJobData } = useGetJobByIdQuery(id);
+  const { data: liveBidsData } = useGetBidsForJobQuery(id);
+  const [acceptBidMutation] = useAcceptBidMutation();
+  const [createPaymentIntentMutation] = useCreatePaymentIntentMutation();
+
+  const rawJob = liveJobData?.data || liveJobData;
+  const rawBids = liveBidsData?.data || liveBidsData;
+
+  const job = rawJob?._id ? mapBackendJobDetail(rawJob) : getJobById(id);
+  const bids = Array.isArray(rawBids) ? rawBids.map(mapBackendBid) : getBidsForJob(id);
   const conversation = getConversationForJob(id);
   const payment = getPaymentForJob(id);
+
   const [acceptedBid, setAcceptedBid] = useState<string | null>(
     job?.acceptedBidId ?? null,
   );
@@ -72,7 +121,7 @@ export default function JobDetailPage({ params }: PageProps) {
       ? TIMELINE.indexOf("in_progress")
       : TIMELINE.indexOf(status);
 
-  const acceptedBidData = bids.find((b) => b.id === acceptedBid);
+  const acceptedBidData = bids.find((b: any) => b.id === acceptedBid);
   const canAccept =
     (status === "bidding" || status === "open") && !acceptedBid;
   const showAfterAccept =
@@ -89,22 +138,37 @@ export default function JobDetailPage({ params }: PageProps) {
 
   const payAmount = acceptedBidData?.amount ?? payment?.amount ?? job.budget;
   const providerFirst =
-    acceptedBidData?.providerName.split(" ")[0] ??
-    job.providerName?.split(" ")[0];
+    acceptedBidData?.providerName?.split(" ")[0] ??
+    job.providerName?.split(" ")[0] ?? "Provider";
 
-  const handleAccept = (bidId: string, providerName: string) => {
-    setAcceptedBid(bidId);
-    setLocalStatus("booked");
-    toast.success(`You chose ${providerName}`, {
-      description: "Next: pay to confirm the booking.",
-    });
+  const handleAccept = async (bidId: string, providerName: string) => {
+    try {
+      await acceptBidMutation(bidId).unwrap();
+      setAcceptedBid(bidId);
+      setLocalStatus("booked");
+      toast.success(`You chose ${providerName}`, {
+        description: "Next: pay to confirm the booking.",
+      });
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to accept bid");
+    }
   };
 
-  const handlePay = () => {
-    setPaymentHeld(true);
-    toast.success("Payment held safely", {
-      description: "Money stays with NearServe until you approve the work.",
-    });
+  const handlePay = async () => {
+    try {
+      const res: any = await createPaymentIntentMutation({ jobId: id }).unwrap();
+      const checkoutUrl = res?.data?.checkoutUrl || res?.checkoutUrl;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        setPaymentHeld(true);
+        toast.success("Payment authorized safely", {
+          description: "Payment is protected safely by NearServe until you approve job completion.",
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to initiate payment");
+    }
   };
 
   return (

@@ -1,4 +1,3 @@
-// RmTable.tsx
 "use client";
 
 import React from "react";
@@ -38,36 +37,38 @@ const UseTable = <T extends Record<string, any>>({
 }: RmTableProps<T>) => {
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="text-gray-400 text-sm animate-pulse">Loading...</div>
+      <div className="flex justify-center items-center py-16 w-full">
+        <div className="text-stone-400 text-sm font-semibold animate-pulse">
+          Loading data...
+        </div>
       </div>
     );
   }
 
   if (!data.length) {
     return (
-      <div className="flex justify-center items-center py-12 text-gray-400 text-sm">
+      <div className="flex justify-center items-center py-16 text-stone-400 text-sm font-medium w-full">
         {emptyText}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto w-full">
-      <table className={`w-full ${bordered ? "border border-gray-200" : ""}`}>
+    <div className="overflow-x-auto w-full scrollbar-none">
+      <table className={`w-full min-w-full text-left border-collapse table-auto ${bordered ? "border border-stone-200" : ""}`}>
         <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
+          <tr className="bg-stone-50 border-b border-stone-200/80">
             {columns.map((col) => (
               <th
                 key={col.key as string}
-                className={`px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide ${
+                className={`px-5 py-4 text-[11px] font-bold text-stone-500 uppercase tracking-wider ${
                   col.align === "center"
                     ? "text-center"
                     : col.align === "right"
                       ? "text-right"
                       : "text-left"
                 } ${col.className || ""}`}
-                style={{ width: col.width }}
+                style={col.width ? { width: col.width } : undefined}
               >
                 {col.title}
               </th>
@@ -78,8 +79,8 @@ const UseTable = <T extends Record<string, any>>({
           {data.map((row, rowIndex) => {
             const rowClickable = onRowClick ? "cursor-pointer" : "";
             const bgColor =
-              striped && rowIndex % 2 === 1 ? "bg-gray-50/50" : "";
-            const hoverClass = hover ? "hover:bg-gray-50" : "";
+              striped && rowIndex % 2 === 1 ? "bg-stone-50/40" : "bg-white";
+            const hoverClass = hover ? "hover:bg-stone-100/80" : "";
             const customRowClass =
               typeof rowClassName === "function"
                 ? rowClassName(row, rowIndex)
@@ -89,18 +90,18 @@ const UseTable = <T extends Record<string, any>>({
               <tr
                 key={rowIndex}
                 onClick={() => onRowClick?.(row, rowIndex)}
-                className={`border-b border-gray-100 last:border-0 transition-colors ${bgColor} ${hoverClass} ${rowClickable} ${customRowClass}`}
+                className={`border-b border-stone-100 last:border-0 transition-colors duration-150 ${bgColor} ${hoverClass} ${rowClickable} ${customRowClass}`}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key as string}
-                    className={`px-4 py-3.5 text-sm ${
+                    className={`px-5 py-4 text-sm text-ink ${
                       col.align === "center"
                         ? "text-center"
                         : col.align === "right"
                           ? "text-right"
                           : "text-left"
-                    }`}
+                    } ${col.className || ""}`}
                   >
                     {col.render
                       ? col.render(row, rowIndex)

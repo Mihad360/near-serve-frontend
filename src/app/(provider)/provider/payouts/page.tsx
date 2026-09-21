@@ -10,6 +10,7 @@ import {
   Landmark,
   Loader2,
   ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -21,13 +22,6 @@ import { ROUTES } from "@/utils/navigation";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/shared/app/PageHeader";
 
-/**
- * Stripe Express Connect setup — mirrors provider APIs:
- * POST /provider/stripe/create-account
- * GET  /provider/stripe/onboarding-link
- * GET  /provider/stripe/account-status
- * GET  /provider/stripe/dashboard-link
- */
 function PayoutsContent() {
   const searchParams = useSearchParams();
   const initial = getStripeAccountStatus(searchParams.get("stripe"));
@@ -46,16 +40,16 @@ function PayoutsContent() {
         payoutsEnabled: false,
       });
       setBusy(false);
-      toast.success("Stripe account created", {
-        description: "Next: finish bank details with Stripe.",
+      toast.success("Payout account linked", {
+        description: "Please complete your bank account details.",
       });
     }, 700);
   };
 
   const openOnboarding = () => {
-    toast.message("Stripe onboarding (preview)", {
+    toast.message("Payout onboarding (preview)", {
       description:
-        "Live app opens Stripe Express hosted onboarding. Complete ID + bank there.",
+        "Opens secure verification to confirm your identity and bank payout info.",
     });
     setBusy(true);
     window.setTimeout(() => {
@@ -67,16 +61,14 @@ function PayoutsContent() {
         bankLast4: "8821",
       });
       setBusy(false);
-      toast.success("Payouts ready", {
-        description: "You can receive money when customers approve jobs.",
+      toast.success("Payouts Enabled!", {
+        description: "Direct payouts are now active for completed jobs.",
       });
     }, 900);
   };
 
   const openDashboard = () => {
-    toast.message("Stripe Express dashboard (preview)", {
-      description: "Live app opens your Stripe Express login link.",
-    });
+    toast.message("Payout dashboard link opened");
   };
 
   const previewPreset = (preset: MockStripePreset) => {
@@ -91,106 +83,108 @@ function PayoutsContent() {
   const steps = [
     {
       done: status.hasAccount,
-      title: "Create Stripe account",
-      body: "One click — NearServe creates your Stripe Express account.",
+      title: "1. Create Payout Account",
+      body: "Connect your bank or digital wallet to NearServe.",
     },
     {
       done: status.detailsSubmitted,
-      title: "Add bank details",
-      body: "Stripe asks for ID and where to send money. Takes a few minutes.",
+      title: "2. Verify Bank Details",
+      body: "Submit routing details and government ID for quick verification.",
     },
     {
       done: ready,
-      title: "Start getting paid",
-      body: "When a customer approves a job, money goes to your bank.",
+      title: "3. Receive Instant Payouts",
+      body: "Earnings deposit directly as soon as customers sign off on finished work.",
     },
   ];
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl space-y-8">
       <PageHeader
-        eyebrow="Get paid"
-        title="Payout setup"
-        description="Connect a Stripe Express account so customers’ payments can reach your bank after they approve the work."
+        eyebrow="Payout Settings"
+        title="Direct deposit & bank setup"
+        description="Connect your account to receive automated payouts directly upon job completion."
       />
 
-      {/* Design preview toggles */}
-      <div className="mb-6 flex flex-wrap gap-2 text-xs animate-fade-up">
-        <span className="text-muted self-center mr-1">Preview as:</span>
+      {/* Preset switcher for demo */}
+      <div className="flex flex-wrap items-center gap-2 text-xs animate-fade-up">
+        <span className="text-muted font-bold mr-1">Preview state:</span>
         {(
           [
             ["none", "Not started"],
             ["pending", "Needs bank details"],
-            ["ready", "Ready"],
+            ["ready", "Verified & Ready"],
           ] as const
         ).map(([key, label]) => (
           <button
             key={key}
             type="button"
             onClick={() => previewPreset(key)}
-            className="rounded-full border border-border bg-white px-3 py-1 font-medium text-warm hover:border-brand hover:text-brand"
+            className="rounded-full bg-stone-100 hover:bg-stone-200 px-3 py-1 font-bold text-ink transition-all shadow-xs"
           >
             {label}
           </button>
         ))}
       </div>
 
+      {/* Status Banner */}
       <div
         className={cn(
-          "mb-6 rounded-2xl p-5 flex gap-4 animate-fade-up",
+          "rounded-3xl p-6 flex gap-4 animate-fade-up shadow-xs",
           ready
-            ? "border border-[#c8e6c9] bg-[linear-gradient(135deg,#e8f5e9_0%,#f1f8f2_100%)]"
-            : "border border-[#f0d9a8] bg-[linear-gradient(135deg,#fff8eb_0%,#fff3e0_100%)]",
+            ? "bg-emerald-50 border border-emerald-200/80"
+            : "bg-amber-50 border border-amber-200/80",
         )}
       >
         <div
           className={cn(
-            "size-11 rounded-2xl flex items-center justify-center shrink-0 border",
+            "size-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs",
             ready
-              ? "bg-white text-[#1b5e20] border-[#c8e6c9]/80"
-              : "bg-white/80 text-[#9a5b00] border-[#f0d9a8]/60",
+              ? "bg-emerald-100 text-emerald-800"
+              : "bg-amber-100 text-amber-800",
           )}
         >
           {ready ? (
-            <ShieldCheck className="size-5" />
+            <ShieldCheck className="size-6" />
           ) : (
-            <Landmark className="size-5" />
+            <Landmark className="size-6" />
           )}
         </div>
         <div>
-          <h2 className="font-fraunces text-lg font-semibold text-ink">
+          <h2 className="font-fraunces text-xl font-bold text-ink">
             {ready
-              ? "Payouts are ready"
+              ? "Payouts are Fully Configured"
               : status.hasAccount
-                ? "Finish setup on Stripe"
-                : "Set up how you get paid"}
+                ? "Finish Bank Account Setup"
+                : "Set Up Your Direct Payouts"}
           </h2>
-          <p className="text-sm text-muted mt-1 leading-relaxed">
+          <p className="text-xs text-muted mt-1 leading-relaxed font-medium">
             {ready
-              ? `Money from approved jobs goes to bank ···· ${status.bankLast4 ?? "····"}.`
-              : "You need a Stripe Express account before earnings can leave NearServe."}
+              ? `Funds from completed jobs deposit automatically to Bank account ending in ···· ${status.bankLast4 ?? "8821"}.`
+              : "Link your payout method so you receive funds immediately upon job approval."}
           </p>
         </div>
       </div>
 
-      <ol className="space-y-3 mb-8 animate-fade-up hero-delay-1">
+      {/* 3 Step List */}
+      <ol className="space-y-3 animate-fade-up hero-delay-1">
         {steps.map((step, i) => (
           <li
             key={step.title}
-            className="app-surface rounded-2xl p-4 flex gap-3 items-start"
+            className="bg-stone-100 rounded-3xl p-5 flex gap-4 items-start shadow-xs"
           >
             <span
               className={cn(
-                "size-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border-2",
+                "size-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
                 step.done
-                  ? "bg-brand border-brand text-white"
-                  : "bg-cream border-border text-muted",
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-stone-200 text-muted",
               )}
             >
-              {step.done ? <Check className="size-3.5" /> : i + 1}
+              {step.done ? <Check className="size-4" /> : i + 1}
             </span>
             <div>
-              <p className="font-semibold text-ink text-sm">{step.title}</p>
+              <p className="font-bold text-ink text-sm">{step.title}</p>
               <p className="text-xs text-muted mt-0.5 leading-relaxed">
                 {step.body}
               </p>
@@ -199,9 +193,10 @@ function PayoutsContent() {
         ))}
       </ol>
 
-      <div className="app-surface rounded-2xl p-5 space-y-3 animate-fade-up hero-delay-2">
-        <h3 className="font-fraunces text-base font-semibold text-ink mb-1">
-          Actions
+      {/* Action Card */}
+      <div className="bg-stone-100 rounded-3xl p-6 md:p-7 space-y-4 animate-fade-up hero-delay-2 shadow-xs">
+        <h3 className="font-fraunces text-lg font-bold text-ink">
+          Payout Actions
         </h3>
 
         {!status.hasAccount && (
@@ -209,14 +204,14 @@ function PayoutsContent() {
             type="button"
             disabled={busy}
             onClick={createAccount}
-            className="app-btn w-full flex items-center justify-center gap-2 rounded-xl bg-brand text-white font-semibold py-3.5 text-sm hover:bg-brand-dark disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand text-white font-bold py-4 text-sm hover:bg-brand-dark transition-all duration-300 shadow-md shadow-brand/25 disabled:opacity-60"
           >
             {busy ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Building2 className="size-4" />
             )}
-            Create Stripe account
+            <span>Link Bank Account</span>
           </button>
         )}
 
@@ -225,14 +220,14 @@ function PayoutsContent() {
             type="button"
             disabled={busy}
             onClick={openOnboarding}
-            className="app-btn w-full flex items-center justify-center gap-2 rounded-xl bg-brand text-white font-semibold py-3.5 text-sm hover:bg-brand-dark disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand text-white font-bold py-4 text-sm hover:bg-brand-dark transition-all duration-300 shadow-md shadow-brand/25 disabled:opacity-60"
           >
             {busy ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <ExternalLink className="size-4" />
             )}
-            Continue on Stripe
+            <span>Complete Bank Verification</span>
           </button>
         )}
 
@@ -240,24 +235,24 @@ function PayoutsContent() {
           <button
             type="button"
             onClick={openDashboard}
-            className="app-btn w-full flex items-center justify-center gap-2 rounded-xl bg-ink text-white font-semibold py-3.5 text-sm hover:bg-ink/90"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-ink text-white font-bold py-4 text-sm hover:bg-stone-800 transition-all shadow-xs"
           >
             <ExternalLink className="size-4" />
-            Open Stripe dashboard
+            <span>Open Payout Dashboard</span>
           </button>
         )}
 
-        <div className="pt-3 border-t border-border grid sm:grid-cols-3 gap-2 text-xs">
+        <div className="pt-4 border-t border-stone-200/70 grid grid-cols-3 gap-2 text-xs">
           <StatusPill
             label="Account"
             ok={status.hasAccount}
-            yes="Created"
-            no="Not created"
+            yes="Connected"
+            no="Pending"
           />
           <StatusPill
-            label="Details"
+            label="Bank Details"
             ok={status.detailsSubmitted}
-            yes="Submitted"
+            yes="Verified"
             no="Incomplete"
           />
           <StatusPill
@@ -268,17 +263,6 @@ function PayoutsContent() {
           />
         </div>
       </div>
-
-      <p className="mt-6 text-xs text-muted leading-relaxed">
-        APIs used here:{" "}
-        <code className="text-[11px]">create-account</code>,{" "}
-        <code className="text-[11px]">onboarding-link</code>,{" "}
-        <code className="text-[11px]">account-status</code>,{" "}
-        <code className="text-[11px]">dashboard-link</code>.{" "}
-        <Link href={ROUTES.PROVIDER_EARNINGS} className="text-brand font-medium">
-          View earnings →
-        </Link>
-      </p>
     </div>
   );
 }
@@ -295,11 +279,11 @@ function StatusPill({
   no: string;
 }) {
   return (
-    <div className="rounded-xl bg-cream/80 border border-border px-3 py-2">
-      <p className="text-[10px] uppercase tracking-wider text-muted mb-0.5">
+    <div className="rounded-2xl bg-white p-3 text-center shadow-xs">
+      <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-0.5">
         {label}
       </p>
-      <p className={cn("font-semibold", ok ? "text-[#1b5e20]" : "text-[#9a5b00]")}>
+      <p className={cn("font-bold text-xs", ok ? "text-emerald-700" : "text-amber-700")}>
         {ok ? yes : no}
       </p>
     </div>

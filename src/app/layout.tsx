@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NearServe",
   description:
-    "Local services marketplace — verified providers bid, escrow keeps payments safe.",
+    "Local services marketplace — verified providers bid, safe payment guarantee protects every job.",
 };
 
 export default function RootLayout({
